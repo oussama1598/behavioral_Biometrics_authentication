@@ -1,6 +1,6 @@
 #include "strings_helpers.h"
 
-std::vector<std::string> StringsHelpers::split(std::string &string, char delimiter) {
+std::vector<std::string> StringsHelpers::split(const std::string &string, char delimiter) {
     std::vector<std::string> tokens;
 
     std::stringstream ss(string);
@@ -11,4 +11,36 @@ std::vector<std::string> StringsHelpers::split(std::string &string, char delimit
     }
 
     return tokens;
+}
+
+std::string StringsHelpers::removeMultipleSpaces(const std::string &s) {
+    std::string newString;
+
+    size_t currentCharIndex = 0;
+    size_t stringLength = s.length();
+
+    while (currentCharIndex < stringLength) {
+        size_t end = s.find_first_of(' ', currentCharIndex) + 1;
+
+        newString += s.substr(currentCharIndex, end - currentCharIndex);
+
+        if (s.substr(currentCharIndex, stringLength).find(' ') != std::string::npos) {
+            currentCharIndex = s.find_first_not_of(' ', end);
+        } else {
+            currentCharIndex = stringLength;
+        }
+    }
+
+    return newString;
+}
+
+int StringsHelpers::hexStringToInt(const std::string &s) {
+    int value;
+
+    std::stringstream ss;
+
+    ss << std::hex << s;
+    ss >> value;
+
+    return value;
 }

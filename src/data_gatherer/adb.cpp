@@ -21,3 +21,59 @@ void Adb::getDevices() {
         }
     }
 }
+
+// protocol reference https://www.kernel.org/doc/html/v4.18/input/multi-touch-protocol.html?fbclid=IwAR0BR7xXPjYubsk6em5Hyg2hF_i6cpENp6rMWBmUGboWJjZPknso1PMuqso
+
+void Adb::listenForTouchEvents() {
+    std::vector<std::pair<int, int>> touchData;
+
+    redi::ipstream adbProcess("adb shell getevent -lt /dev/input/event3");
+
+    std::string lineBuffer;
+
+    int currentFinderSlotIndex = 0;
+
+    bool waitingForPacket = false;
+
+    while (std::getline(adbProcess.out(), lineBuffer)) {
+        std::vector<std::string> parsedData = StringsHelpers::split(
+                StringsHelpers::removeMultipleSpaces(lineBuffer),
+                ' '
+        );
+
+        std::string eventName = parsedData[3];
+        std::string eventValue = parsedData[4];
+
+        if (eventName == "SYN_REPORT")
+            waitingForPacket = true;
+
+        if (eventName == "ABS_MT_SLOT")
+            currentFinderSlotIndex = StringsHelpers::hexStringToInt(eventValue);
+
+        if (eventName == "ABS_MT_TRACKING_ID") {
+            if (eventValue != "ffffffff")
+                touchData.emplace_back(0, 0);
+            else {
+                touchData.erase(touchData.begin() + currentFinderSlotIndex);
+
+                if (touchData.size() == 1)
+                    currentFinderSlotIndex = 0;
+            }
+        }
+
+        if (eventName == "ABS_MT_POSITION_X") {
+            touchData.at(currentFinderSlotIndex).first = StringsHelpers::hexStringToInt(eventValue);
+        }
+
+        if (eventName == "ABS_MT_POSITION_Y") {
+            touchData.at(currentFinderSlotIndex).second = StringsHelpers::hexStringToInt(
+                    eventValue);
+
+            if (waitingForPacket) {
+                std::cout << currentFinderSlotIndex << " "
+                          << touchData.at(currentFinderSlotIndex).first << " "
+                          << touchData.at(currentFinderSlotIndex).second << std::endl;
+            }
+        }
+    }
+}
