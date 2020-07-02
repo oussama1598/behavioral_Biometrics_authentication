@@ -25,7 +25,7 @@ void Adb::getDevices() {
 // protocol reference https://www.kernel.org/doc/html/v4.18/input/multi-touch-protocol.html?fbclid=IwAR0BR7xXPjYubsk6em5Hyg2hF_i6cpENp6rMWBmUGboWJjZPknso1PMuqso
 
 void Adb::listenForTouchEvents() {
-    std::vector<std::pair<int, int>> touchData;
+    std::map<int, std::pair<int, int>> touchData;
 
     redi::ipstream adbProcess("adb shell getevent -lt /dev/input/event3");
 
@@ -52,11 +52,11 @@ void Adb::listenForTouchEvents() {
 
         if (eventName == "ABS_MT_TRACKING_ID") {
             if (eventValue != "ffffffff")
-                touchData.emplace_back(0, 0);
+                touchData.insert({currentFinderSlotIndex, {0, 0}});
             else {
-                touchData.erase(touchData.begin() + currentFinderSlotIndex);
+                touchData.erase(currentFinderSlotIndex);
 
-                if (touchData.size() == 1)
+                if (touchData.size() <= 1)
                     currentFinderSlotIndex = 0;
             }
         }
