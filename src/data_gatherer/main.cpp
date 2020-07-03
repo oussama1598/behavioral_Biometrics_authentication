@@ -1,7 +1,7 @@
-#include "adb.h"
+#include "adb_events_listener.h"
 
 int main() {
-    Adb adb;
+    AdbEventsListener adbEventsListener;
 
-    adb.listenForEvents();
+    adbEventsListener.listenForEvents();
 }

@@ -9,10 +9,11 @@
 #include "lib/pstream.h"
 #include "helpers/strings_helpers.h"
 
-class Adb {
+class AdbEventsListener {
 private:
     struct TouchEvent {
         int timestamp;
+        int id;
         int x, y;
         int pressure;
         int touchMajor = -1, widthMajor = -1;

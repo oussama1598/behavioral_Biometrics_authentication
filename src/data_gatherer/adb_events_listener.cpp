@@ -1,9 +1,9 @@
-#include "adb.h"
+#include "adb_events_listener.h"
 
-// protocol reference https://www.kernel.org/doc/html/v4.18/input/multi-touch-protocol.html?fbclid=IwAR0BR7xXPjYubsk6em5Hyg2hF_i6cpENp6rMWBmUGboWJjZPknso1PMuqso
-// protocol reference https://www.kernel.org/doc/Documentation/input/event-codes.txt
+// protocol reference touch screen https://www.kernel.org/doc/html/v4.18/input/multi-touch-protocol.html?fbclid=IwAR0BR7xXPjYubsk6em5Hyg2hF_i6cpENp6rMWBmUGboWJjZPknso1PMuqso
+// protocol reference other events https://www.kernel.org/doc/Documentation/input/event-codes.txt
 
-void Adb::_listenForTouchEvents(std::string &eventName, std::string &eventValue) {
+void AdbEventsListener::_listenForTouchEvents(std::string &eventName, std::string &eventValue) {
     if (eventName == "ABS_MT_SLOT")
         _currentFinderSlotIndex = StringsHelpers::hexStringToInt(eventValue);
 
@@ -25,6 +25,7 @@ void Adb::_listenForTouchEvents(std::string &eventName, std::string &eventValue)
 
     if (eventName == "ABS_MT_POSITION_X") {
         _touchEvents.at(_currentFinderSlotIndex).x = StringsHelpers::hexStringToInt(eventValue);
+        _touchEvents.at(_currentFinderSlotIndex).id = _currentFinderSlotIndex;
 
         _touchWaitingForPacket = true;
     }
@@ -42,12 +43,15 @@ void Adb::_listenForTouchEvents(std::string &eventName, std::string &eventValue)
         _touchEvents.at(_currentFinderSlotIndex).widthMajor = StringsHelpers::hexStringToInt(
                 eventValue);
 
+        _touchEvents.at(_currentFinderSlotIndex).pressure =
+                _touchEvents.at(_currentFinderSlotIndex).touchMajor /
+                _touchEvents.at(_currentFinderSlotIndex).widthMajor;
+
         if (_touchWaitingForPacket) {
-            std::cout << _currentFinderSlotIndex << " "
+            std::cout << _touchEvents.at(_currentFinderSlotIndex).id << " "
                       << _touchEvents.at(_currentFinderSlotIndex).x << " "
                       << _touchEvents.at(_currentFinderSlotIndex).y << " "
-                      << _touchEvents.at(_currentFinderSlotIndex).touchMajor /
-                         _touchEvents.at(_currentFinderSlotIndex).widthMajor
+                      << _touchEvents.at(_currentFinderSlotIndex).pressure
                       << std::endl;
 
             _touchWaitingForPacket = false;
@@ -55,7 +59,8 @@ void Adb::_listenForTouchEvents(std::string &eventName, std::string &eventValue)
     }
 }
 
-void Adb::_listenForAccelerometerEvents(std::string &eventName, std::string &eventValue) {
+void
+AdbEventsListener::_listenForAccelerometerEvents(std::string &eventName, std::string &eventValue) {
     if (eventName == "REL_X") {
         _accelerometerWaitingForPacket = true;
 
@@ -80,7 +85,7 @@ void Adb::_listenForAccelerometerEvents(std::string &eventName, std::string &eve
     }
 }
 
-void Adb::_listenForGyroscopeEvents(std::string &eventName, std::string &eventValue) {
+void AdbEventsListener::_listenForGyroscopeEvents(std::string &eventName, std::string &eventValue) {
     if (eventName == "REL_RX") {
         _gyroscopeWaitingForPacket = true;
 
@@ -105,7 +110,7 @@ void Adb::_listenForGyroscopeEvents(std::string &eventName, std::string &eventVa
     }
 }
 
-void Adb::_listenForButtonsEvents(std::string &eventName, std::string &eventValue) {
+void AdbEventsListener::_listenForButtonsEvents(std::string &eventName, std::string &eventValue) {
     if (_buttonsIDs.find(eventName) != _buttonsIDs.end()) {
         ButtonEvent event{_buttonsIDs.at(eventName), eventValue == "DOWN"};
 
@@ -113,7 +118,7 @@ void Adb::_listenForButtonsEvents(std::string &eventName, std::string &eventValu
     }
 }
 
-void Adb::getDevices() {
+void AdbEventsListener::getDevices() {
     redi::ipstream adbProcess("adb devices", redi::pstreams::pstdout | redi::pstreams::pstderr);
 
     std::string lineBuffer;
@@ -127,7 +132,7 @@ void Adb::getDevices() {
     }
 }
 
-void Adb::listenForEvents() {
+void AdbEventsListener::listenForEvents() {
     redi::ipstream eventListener("adb shell getevent -lt");
     std::string outputBuffer;
 
