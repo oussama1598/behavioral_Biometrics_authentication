@@ -1,20 +1,7 @@
 #include "adb.h"
 
-void Adb::getDevices() {
-    redi::ipstream adbProcess("adb devices", redi::pstreams::pstdout | redi::pstreams::pstderr);
-
-    std::string lineBuffer;
-
-    while (std::getline(adbProcess.out(), lineBuffer)) {
-        if (lineBuffer.find("\tdevice") != std::string::npos) {
-            std::vector<std::string> parsedData = StringsHelpers::split(lineBuffer, '\t');
-
-            std::cout << parsedData[0] << std::endl;
-        }
-    }
-}
-
 // protocol reference https://www.kernel.org/doc/html/v4.18/input/multi-touch-protocol.html?fbclid=IwAR0BR7xXPjYubsk6em5Hyg2hF_i6cpENp6rMWBmUGboWJjZPknso1PMuqso
+// protocol reference https://www.kernel.org/doc/Documentation/input/event-codes.txt
 
 void Adb::_listenForTouchEvents(std::string &eventName, std::string &eventValue) {
     if (eventName == "ABS_MT_SLOT")
@@ -68,8 +55,6 @@ void Adb::_listenForTouchEvents(std::string &eventName, std::string &eventValue)
     }
 }
 
-// protocol reference https://www.kernel.org/doc/Documentation/input/event-codes.txt
-
 void Adb::_listenForAccelerometerEvents(std::string &eventName, std::string &eventValue) {
     if (eventName == "REL_X") {
         _accelerometerWaitingForPacket = true;
@@ -95,57 +80,50 @@ void Adb::_listenForAccelerometerEvents(std::string &eventName, std::string &eve
     }
 }
 
-void Adb::listenForGyroscopeEvents() {
-    redi::ipstream adbProcess("adb shell getevent -lt /dev/input/event5");
+void Adb::_listenForGyroscopeEvents(std::string &eventName, std::string &eventValue) {
+    if (eventName == "REL_RX") {
+        _gyroscopeWaitingForPacket = true;
 
-    std::string lineBuffer;
+        _gyroscopeEvent.x = StringsHelpers::hexStringToInt(eventValue);
+    }
 
-    GyroscopeEvent event{0, -1, -1, -1};
-    bool waitingForPacket = false;
+    if (eventName == "REL_RY") {
+        _gyroscopeEvent.y = StringsHelpers::hexStringToInt(eventValue);
+    }
 
-    while (std::getline(adbProcess.out(), lineBuffer)) {
-        std::vector<std::string> parsedData = StringsHelpers::split(
-                StringsHelpers::removeMultipleSpaces(lineBuffer),
-                ' '
-        );
+    if (eventName == "REL_RZ") {
+        _gyroscopeEvent.z = StringsHelpers::hexStringToInt(eventValue);
 
-        std::string eventName = parsedData[3];
-        std::string eventValue = parsedData[4];
+        if (_gyroscopeWaitingForPacket) {
+            std::cout << "Gyro" << " " << _gyroscopeEvent.x << " "
+                      << _gyroscopeEvent.y << " "
+                      << _gyroscopeEvent.z
+                      << std::endl;
 
-        if (eventName == "REL_RX") {
-            waitingForPacket = true;
-
-            event.x = StringsHelpers::hexStringToInt(eventValue);
-        }
-
-        if (eventName == "REL_RY") {
-            event.y = StringsHelpers::hexStringToInt(eventValue);
-        }
-
-        if (eventName == "REL_RZ") {
-            event.z = StringsHelpers::hexStringToInt(eventValue);
-
-            if (waitingForPacket) {
-                std::cout << event.x << " "
-                          << event.y << " "
-                          << event.z
-                          << std::endl;
-
-                waitingForPacket = false;
-            }
+            _gyroscopeWaitingForPacket = false;
         }
     }
 }
 
-void Adb::listenForButtonsEvents() {
-    redi::ipstream adbProcess("adb shell getevent -lt");
+void Adb::_listenForButtonsEvents(std::string &eventName, std::string &eventValue) {
+    if (_buttonsIDs.find(eventName) != _buttonsIDs.end()) {
+        ButtonEvent event{_buttonsIDs.at(eventName), eventValue == "DOWN"};
+
+        std::cout << eventName << " " << event.ButtonId << " " << event.pressed << std::endl;
+    }
+}
+
+void Adb::getDevices() {
+    redi::ipstream adbProcess("adb devices", redi::pstreams::pstdout | redi::pstreams::pstderr);
 
     std::string lineBuffer;
 
     while (std::getline(adbProcess.out(), lineBuffer)) {
-        std::cout <<
-                  StringsHelpers::removeMultipleSpaces(lineBuffer) << std::endl;
+        if (lineBuffer.find("\tdevice") != std::string::npos) {
+            std::vector<std::string> parsedData = StringsHelpers::split(lineBuffer, '\t');
 
+            std::cout << parsedData[0] << std::endl;
+        }
     }
 }
 
