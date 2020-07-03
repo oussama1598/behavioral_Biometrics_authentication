@@ -1,5 +1,7 @@
 #include "adb.h"
 
 int main() {
-    Adb::listenForTouchEvents();
+    Adb adb;
+
+    adb.listenForEvents();
 }

@@ -1,0 +1,7 @@
+[     735.198069] EV_SYN       SYN_REPORT           00000000
+[     735.378123] EV_REL       REL_X                00000021
+[     735.378123] EV_REL       REL_Y                ffffffb6
+[     735.378123] EV_REL       REL_Z                00003c41
+[     735.378123] EV_REL       REL_DIAL             000000b1
+[     735.378123] EV_REL       REL_MISC             469acfa9
+[     735.378123] EV_SYN       SYN_REPORT           00000000
