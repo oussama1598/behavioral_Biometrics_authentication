@@ -37,17 +37,17 @@ private:
     std::map<std::string, std::function<void(std::string &, std::string &)>> _eventsList
             {
                     {"event3",  [=](std::string &eventName, std::string &eventValue) {
-                        this->_listenForTouchEvents(eventName, eventValue);
+                        this->_extractTouchEvents(eventName, eventValue);
                     }},
                     {"event4",  [=](std::string &eventName, std::string &eventValue) {
-                        this->_listenForAccelerometerEvents(eventName, eventValue);
+                        this->_extractAccelerometerEvents(eventName, eventValue);
                     }},
                     {"event5",  [=](std::string &eventName, std::string &eventValue) {
-                        this->_listenForGyroscopeEvents(eventName, eventValue);
+                        this->_extractGyroscopeEvents(eventName, eventValue);
                     }},
                     {
                      "event14", [=](std::string &eventName, std::string &eventValue) {
-                        this->_listenForButtonsEvents(eventName, eventValue);
+                        this->_extractButtonsEvents(eventName, eventValue);
                     }}
             };
 
@@ -75,13 +75,13 @@ private:
 
 private:
 
-    void _listenForTouchEvents(std::string &eventName, std::string &eventValue);
+    void _extractTouchEvents(std::string &eventName, std::string &eventValue);
 
-    void _listenForAccelerometerEvents(std::string &eventName, std::string &eventValue);
+    void _extractAccelerometerEvents(std::string &eventName, std::string &eventValue);
 
-    void _listenForGyroscopeEvents(std::string &eventName, std::string &eventValue);
+    void _extractGyroscopeEvents(std::string &eventName, std::string &eventValue);
 
-    void _listenForButtonsEvents(std::string &eventName, std::string &eventValue);
+    void _extractButtonsEvents(std::string &eventName, std::string &eventValue);
 
 public:
 

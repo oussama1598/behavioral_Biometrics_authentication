@@ -3,7 +3,7 @@
 // protocol reference touch screen https://www.kernel.org/doc/html/v4.18/input/multi-touch-protocol.html?fbclid=IwAR0BR7xXPjYubsk6em5Hyg2hF_i6cpENp6rMWBmUGboWJjZPknso1PMuqso
 // protocol reference other events https://www.kernel.org/doc/Documentation/input/event-codes.txt
 
-void AdbEventsListener::_listenForTouchEvents(std::string &eventName, std::string &eventValue) {
+void AdbEventsListener::_extractTouchEvents(std::string &eventName, std::string &eventValue) {
     if (eventName == "ABS_MT_SLOT")
         _currentFinderSlotIndex = StringsHelpers::hexStringToInt(eventValue);
 
@@ -60,7 +60,7 @@ void AdbEventsListener::_listenForTouchEvents(std::string &eventName, std::strin
 }
 
 void
-AdbEventsListener::_listenForAccelerometerEvents(std::string &eventName, std::string &eventValue) {
+AdbEventsListener::_extractAccelerometerEvents(std::string &eventName, std::string &eventValue) {
     if (eventName == "REL_X") {
         _accelerometerWaitingForPacket = true;
 
@@ -85,7 +85,7 @@ AdbEventsListener::_listenForAccelerometerEvents(std::string &eventName, std::st
     }
 }
 
-void AdbEventsListener::_listenForGyroscopeEvents(std::string &eventName, std::string &eventValue) {
+void AdbEventsListener::_extractGyroscopeEvents(std::string &eventName, std::string &eventValue) {
     if (eventName == "REL_RX") {
         _gyroscopeWaitingForPacket = true;
 
@@ -110,7 +110,7 @@ void AdbEventsListener::_listenForGyroscopeEvents(std::string &eventName, std::s
     }
 }
 
-void AdbEventsListener::_listenForButtonsEvents(std::string &eventName, std::string &eventValue) {
+void AdbEventsListener::_extractButtonsEvents(std::string &eventName, std::string &eventValue) {
     if (_buttonsIDs.find(eventName) != _buttonsIDs.end()) {
         ButtonEvent event{_buttonsIDs.at(eventName), eventValue == "DOWN"};
 
