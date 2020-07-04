@@ -1,7 +1,12 @@
 #include "adb_events_listener.h"
+#include "keyboard_events_listener.h"
 
 int main() {
-    AdbEventsListener adbEventsListener;
+//    AdbEventsListener adbEventsListener;
+//
+//    adbEventsListener.listenForEvents();
 
-    adbEventsListener.listenForEvents();
+    KeyboardEventsListener keyboardEventsListener;
+
+    keyboardEventsListener.listenForEvents();
 }
