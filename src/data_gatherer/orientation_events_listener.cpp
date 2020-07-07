@@ -12,7 +12,15 @@
             std::vector<std::string> parsedOutput = StringsHelpers::split(formatedOutput, ':');
             std::string state = parsedOutput[1].substr(1, 1);
 
-            std::cout << timestamp << " " << state << std::endl;
+            std::stringstream output;
+
+            output << timestamp << " " << state;
+
+            std::string strOutput = output.str();
+
+            std::cout << strOutput << std::endl;
+
+            _orientationEventsFileLogger.addLine(strOutput);
 
             break;
         }

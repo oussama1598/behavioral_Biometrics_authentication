@@ -4,8 +4,12 @@
 #include "helpers/utils.h"
 #include "lib/pstream.h"
 #include "helpers/strings_helpers.h"
+#include "file_logger.h"
 
 class OrientationEventsListener {
+private:
+    FileLogger _orientationEventsFileLogger{"data/" + Utils::getCurrentTime() + "_orientation_events.txt"};
+
 public:
     [[noreturn]] void listenForEvents();
 };

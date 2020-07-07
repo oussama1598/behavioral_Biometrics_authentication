@@ -9,6 +9,7 @@
 #include "lib/pstream.h"
 #include "helpers/strings_helpers.h"
 #include "helpers/utils.h"
+#include "file_logger.h"
 
 class AdbEventsListener {
 private:
@@ -70,6 +71,10 @@ private:
             {"KEY_VOLUMEDOWN", 4}
     };
 
+    // fileLoggers
+    FileLogger _touchEventsFileLogger{"data/" + Utils::getCurrentTime() + "_touch_events.txt"};
+    FileLogger _buttonEventsFileLogger{"data/" + Utils::getCurrentTime() + "_button_events.txt"};
+
 private:
 
     void _extractTouchEvents(std::string &eventName, std::string &eventValue);
@@ -81,7 +86,6 @@ private:
     void _extractButtonsEvents(std::string &eventName, std::string &eventValue);
 
 public:
-
     void listenForEvents();
 };
 

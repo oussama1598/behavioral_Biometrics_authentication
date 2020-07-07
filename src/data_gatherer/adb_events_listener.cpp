@@ -39,12 +39,19 @@ void AdbEventsListener::_extractTouchEvents(std::string &eventName, std::string 
 
 
         if (_touchWaitingForPacket) {
-            std::cout << _touchEvents.at(_currentFinderSlotIndex).timestamp << " "
-                      << _touchEvents.at(_currentFinderSlotIndex).id << " "
-                      << _touchEvents.at(_currentFinderSlotIndex).x << " "
-                      << _touchEvents.at(_currentFinderSlotIndex).y << " "
-                      << _touchEvents.at(_currentFinderSlotIndex).pressure
-                      << std::endl;
+            std::stringstream output;
+
+            output << _touchEvents.at(_currentFinderSlotIndex).timestamp << " "
+                   << _touchEvents.at(_currentFinderSlotIndex).id << " "
+                   << _touchEvents.at(_currentFinderSlotIndex).x << " "
+                   << _touchEvents.at(_currentFinderSlotIndex).y << " "
+                   << _touchEvents.at(_currentFinderSlotIndex).pressure;
+
+            std::string strOutput = output.str();
+
+            std::cout << strOutput << std::endl;
+
+            _touchEventsFileLogger.addLine(strOutput);
 
             _touchWaitingForPacket = false;
         }
@@ -127,13 +134,21 @@ void AdbEventsListener::_extractGyroscopeEvents(std::string &eventName, std::str
 void AdbEventsListener::_extractButtonsEvents(std::string &eventName, std::string &eventValue) {
     if (_buttonsIDs.find(eventName) != _buttonsIDs.end()) {
         std::string timestamp = Utils::getCurrentTimeStamp();
+        std::stringstream output;
+
         int buttonId = _buttonsIDs.at(eventName);
         bool pressed = eventValue == "DOWN";
 
-        std::cout << timestamp << " "
-                  << eventName << " "
-                  << buttonId << " "
-                  << pressed << std::endl;
+        output << timestamp << " "
+               << eventName << " "
+               << buttonId << " "
+               << pressed;
+
+        std::string strOutput = output.str();
+
+        std::cout << strOutput << std::endl;
+
+        _buttonEventsFileLogger.addLine(strOutput);
     }
 }
 
