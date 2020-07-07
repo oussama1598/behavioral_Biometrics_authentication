@@ -118,20 +118,6 @@ void AdbEventsListener::_extractButtonsEvents(std::string &eventName, std::strin
     }
 }
 
-void AdbEventsListener::getDevices() {
-    redi::ipstream adbProcess("adb devices", redi::pstreams::pstdout | redi::pstreams::pstderr);
-
-    std::string lineBuffer;
-
-    while (std::getline(adbProcess.out(), lineBuffer)) {
-        if (lineBuffer.find("\tdevice") != std::string::npos) {
-            std::vector<std::string> parsedData = StringsHelpers::split(lineBuffer, '\t');
-
-            std::cout << parsedData[0] << std::endl;
-        }
-    }
-}
-
 void AdbEventsListener::listenForEvents() {
     redi::ipstream eventListener("adb shell getevent -lt");
     std::string outputBuffer;
