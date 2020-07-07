@@ -33,6 +33,16 @@ void AdbEventsListener::_extractTouchEvents(std::string &eventName, std::string 
     if (eventName == "ABS_MT_POSITION_Y") {
         _touchEvents.at(_currentFinderSlotIndex).y = StringsHelpers::hexStringToInt(
                 eventValue);
+
+        if (_touchWaitingForPacket) {
+            std::cout << _touchEvents.at(_currentFinderSlotIndex).id << " "
+                      << _touchEvents.at(_currentFinderSlotIndex).x << " "
+                      << _touchEvents.at(_currentFinderSlotIndex).y << " "
+                      << _touchEvents.at(_currentFinderSlotIndex).pressure
+                      << std::endl;
+
+            _touchWaitingForPacket = false;
+        }
     }
 
     if (eventName == "ABS_MT_TOUCH_MAJOR")
@@ -46,16 +56,6 @@ void AdbEventsListener::_extractTouchEvents(std::string &eventName, std::string 
         _touchEvents.at(_currentFinderSlotIndex).pressure =
                 _touchEvents.at(_currentFinderSlotIndex).touchMajor /
                 _touchEvents.at(_currentFinderSlotIndex).widthMajor;
-
-        if (_touchWaitingForPacket) {
-            std::cout << _touchEvents.at(_currentFinderSlotIndex).id << " "
-                      << _touchEvents.at(_currentFinderSlotIndex).x << " "
-                      << _touchEvents.at(_currentFinderSlotIndex).y << " "
-                      << _touchEvents.at(_currentFinderSlotIndex).pressure
-                      << std::endl;
-
-            _touchWaitingForPacket = false;
-        }
     }
 }
 
@@ -145,9 +145,9 @@ void AdbEventsListener::listenForEvents() {
 
         std::vector<std::string> parsedOutput = StringsHelpers::split(formatedOutput, ' ');
 
-        std::string eventTypePath = parsedOutput[2];
-        std::string eventName = parsedOutput[4];
-        std::string eventValue = parsedOutput[5];
+        std::string eventTypePath = parsedOutput[1];
+        std::string eventName = parsedOutput[3];
+        std::string eventValue = parsedOutput[4];
 
         std::string eventType = StringsHelpers::split(eventTypePath, '/')[3];
 

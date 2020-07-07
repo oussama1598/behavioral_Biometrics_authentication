@@ -36,17 +36,18 @@ private:
 
     std::map<std::string, std::function<void(std::string &, std::string &)>> _eventsList
             {
-                    {"event3",  [=](std::string &eventName, std::string &eventValue) {
+                    {"event0", [=](std::string &eventName, std::string &eventValue) {
                         this->_extractTouchEvents(eventName, eventValue);
+                        this->_extractButtonsEvents(eventName, eventValue);
                     }},
-                    {"event4",  [=](std::string &eventName, std::string &eventValue) {
+                    {"event3", [=](std::string &eventName, std::string &eventValue) {
                         this->_extractAccelerometerEvents(eventName, eventValue);
                     }},
-                    {"event5",  [=](std::string &eventName, std::string &eventValue) {
-                        this->_extractGyroscopeEvents(eventName, eventValue);
-                    }},
+//                    {"event5", [=](std::string &eventName, std::string &eventValue) {
+//                        this->_extractGyroscopeEvents(eventName, eventValue);
+//                    }},
                     {
-                     "event14", [=](std::string &eventName, std::string &eventValue) {
+                     "event6", [=](std::string &eventName, std::string &eventValue) {
                         this->_extractButtonsEvents(eventName, eventValue);
                     }}
             };

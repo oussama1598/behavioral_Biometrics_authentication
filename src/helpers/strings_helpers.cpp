@@ -35,12 +35,12 @@ std::string StringsHelpers::removeMultipleSpaces(const std::string &s) {
 }
 
 int StringsHelpers::hexStringToInt(const std::string &s) {
-    int value;
+    unsigned int value;
 
     std::stringstream ss;
 
     ss << std::hex << s;
     ss >> value;
 
-    return value;
+    return static_cast<int>(value);
 }
