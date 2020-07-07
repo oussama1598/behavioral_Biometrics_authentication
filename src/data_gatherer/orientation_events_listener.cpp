@@ -6,11 +6,13 @@
         std::string outputBuffer;
 
         while (std::getline(eventListener.out(), outputBuffer)) {
+            std::string timestamp = Utils::getCurrentTimeStamp();
+
             std::string formatedOutput = StringsHelpers::removeMultipleSpaces(outputBuffer);
             std::vector<std::string> parsedOutput = StringsHelpers::split(formatedOutput, ':');
             std::string state = parsedOutput[1].substr(1, 1);
 
-            std::cout << state << std::endl;
+            std::cout << timestamp << " " << state << std::endl;
 
             break;
         }

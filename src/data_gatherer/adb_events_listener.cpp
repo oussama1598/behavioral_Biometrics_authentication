@@ -12,7 +12,7 @@ void AdbEventsListener::_extractTouchEvents(std::string &eventName, std::string 
             _touchEvents.insert({
                                         _currentFinderSlotIndex,
                                         {
-                                                0, 0, 0, 0, -1, -1
+                                                "0", 0, 0, 0, -1, -1
                                         }
                                 });
         else {
@@ -24,8 +24,11 @@ void AdbEventsListener::_extractTouchEvents(std::string &eventName, std::string 
     }
 
     if (eventName == "ABS_MT_POSITION_X") {
-        _touchEvents.at(_currentFinderSlotIndex).x = StringsHelpers::hexStringToInt(eventValue);
+        std::string timestamp = Utils::getCurrentTimeStamp();
+
         _touchEvents.at(_currentFinderSlotIndex).id = _currentFinderSlotIndex;
+        _touchEvents.at(_currentFinderSlotIndex).timestamp = timestamp;
+        _touchEvents.at(_currentFinderSlotIndex).x = StringsHelpers::hexStringToInt(eventValue);
 
         _touchWaitingForPacket = true;
     }
@@ -34,8 +37,10 @@ void AdbEventsListener::_extractTouchEvents(std::string &eventName, std::string 
         _touchEvents.at(_currentFinderSlotIndex).y = StringsHelpers::hexStringToInt(
                 eventValue);
 
+
         if (_touchWaitingForPacket) {
-            std::cout << _touchEvents.at(_currentFinderSlotIndex).id << " "
+            std::cout << _touchEvents.at(_currentFinderSlotIndex).timestamp << " "
+                      << _touchEvents.at(_currentFinderSlotIndex).id << " "
                       << _touchEvents.at(_currentFinderSlotIndex).x << " "
                       << _touchEvents.at(_currentFinderSlotIndex).y << " "
                       << _touchEvents.at(_currentFinderSlotIndex).pressure
@@ -62,9 +67,12 @@ void AdbEventsListener::_extractTouchEvents(std::string &eventName, std::string 
 void
 AdbEventsListener::_extractAccelerometerEvents(std::string &eventName, std::string &eventValue) {
     if (eventName == "REL_X") {
+        std::string timestamp = Utils::getCurrentTimeStamp();
+
         _accelerometerWaitingForPacket = true;
 
         _accelerometerEvent.x = StringsHelpers::hexStringToInt(eventValue);
+        _accelerometerEvent.timestamp = timestamp;
     }
 
     if (eventName == "REL_Y") {
@@ -75,7 +83,8 @@ AdbEventsListener::_extractAccelerometerEvents(std::string &eventName, std::stri
         _accelerometerEvent.z = StringsHelpers::hexStringToInt(eventValue);
 
         if (_accelerometerWaitingForPacket) {
-            std::cout << _accelerometerEvent.x << " "
+            std::cout << _accelerometerEvent.timestamp << " "
+                      << _accelerometerEvent.x << " "
                       << _accelerometerEvent.y << " "
                       << _accelerometerEvent.z
                       << std::endl;
@@ -87,9 +96,12 @@ AdbEventsListener::_extractAccelerometerEvents(std::string &eventName, std::stri
 
 void AdbEventsListener::_extractGyroscopeEvents(std::string &eventName, std::string &eventValue) {
     if (eventName == "REL_RX") {
+        std::string timestamp = Utils::getCurrentTimeStamp();
+
         _gyroscopeWaitingForPacket = true;
 
         _gyroscopeEvent.x = StringsHelpers::hexStringToInt(eventValue);
+        _gyroscopeEvent.timestamp = timestamp;
     }
 
     if (eventName == "REL_RY") {
@@ -100,7 +112,9 @@ void AdbEventsListener::_extractGyroscopeEvents(std::string &eventName, std::str
         _gyroscopeEvent.z = StringsHelpers::hexStringToInt(eventValue);
 
         if (_gyroscopeWaitingForPacket) {
-            std::cout << "Gyro" << " " << _gyroscopeEvent.x << " "
+            std::cout << "Gyro" << " "
+                      << _gyroscopeEvent.timestamp << " "
+                      << _gyroscopeEvent.x << " "
                       << _gyroscopeEvent.y << " "
                       << _gyroscopeEvent.z
                       << std::endl;
@@ -112,9 +126,14 @@ void AdbEventsListener::_extractGyroscopeEvents(std::string &eventName, std::str
 
 void AdbEventsListener::_extractButtonsEvents(std::string &eventName, std::string &eventValue) {
     if (_buttonsIDs.find(eventName) != _buttonsIDs.end()) {
-        ButtonEvent event{_buttonsIDs.at(eventName), eventValue == "DOWN"};
+        std::string timestamp = Utils::getCurrentTimeStamp();
+        int buttonId = _buttonsIDs.at(eventName);
+        bool pressed = eventValue == "DOWN";
 
-        std::cout << eventName << " " << event.ButtonId << " " << event.pressed << std::endl;
+        std::cout << timestamp << " "
+                  << eventName << " "
+                  << buttonId << " "
+                  << pressed << std::endl;
     }
 }
 

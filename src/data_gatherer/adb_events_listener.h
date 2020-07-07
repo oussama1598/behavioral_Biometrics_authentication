@@ -8,11 +8,12 @@
 
 #include "lib/pstream.h"
 #include "helpers/strings_helpers.h"
+#include "helpers/utils.h"
 
 class AdbEventsListener {
 private:
     struct TouchEvent {
-        int timestamp;
+        std::string timestamp;
         int id;
         int x, y;
         int pressure;
@@ -20,18 +21,13 @@ private:
     };
 
     struct AccelerometerEvent {
-        int timestamp;
+        std::string timestamp;
         int x, y, z;
     };
 
     struct GyroscopeEvent {
-        int timestamp;
+        std::string timestamp;
         int x, y, z;
-    };
-
-    struct ButtonEvent {
-        int ButtonId;
-        bool pressed;
     };
 
     std::map<std::string, std::function<void(std::string &, std::string &)>> _eventsList
@@ -58,11 +54,11 @@ private:
     bool _touchWaitingForPacket{false};
 
     // for accelerometer events
-    AccelerometerEvent _accelerometerEvent{0, -1, -1, -1};
+    AccelerometerEvent _accelerometerEvent{"0", -1, -1, -1};
     bool _accelerometerWaitingForPacket{false};
 
     // for gyroscope events
-    GyroscopeEvent _gyroscopeEvent{0, -1, -1, -1};
+    GyroscopeEvent _gyroscopeEvent{"0", -1, -1, -1};
     bool _gyroscopeWaitingForPacket = false;
 
     // for buttons events
@@ -85,8 +81,6 @@ private:
     void _extractButtonsEvents(std::string &eventName, std::string &eventValue);
 
 public:
-
-    void getDevices();
 
     void listenForEvents();
 };

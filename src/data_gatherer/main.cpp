@@ -18,11 +18,11 @@ void runOrientationListener() {
 }
 
 int main() {
-    std::thread keyboardListenerThread(runKeyboardListener);
+//    std::thread keyboardListenerThread(runKeyboardListener);
     std::thread adbListenerThread(runAdbListener);
-    std::thread orientationListenerThread(runOrientationListener);
+//    std::thread orientationListenerThread(runOrientationListener);
 
-    keyboardListenerThread.join();
+//    keyboardListenerThread.join();
     adbListenerThread.join();
-    orientationListenerThread.join();
+//    orientationListenerThread.join();
 }
