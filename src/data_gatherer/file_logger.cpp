@@ -12,6 +12,8 @@ FileLogger::~FileLogger() {
 
 void FileLogger::addLine(const std::string &line) {
     if (fileStream.is_open()) {
+        std::cout << line << std::endl;
+
         fileStream << line << "\n";
         fileStream.flush();
     }

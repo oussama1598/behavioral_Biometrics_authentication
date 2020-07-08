@@ -47,11 +47,7 @@ void AdbEventsListener::_extractTouchEvents(std::string &eventName, std::string 
                    << _touchEvents.at(_currentFinderSlotIndex).y << " "
                    << _touchEvents.at(_currentFinderSlotIndex).pressure;
 
-            std::string strOutput = output.str();
-
-            std::cout << strOutput << std::endl;
-
-            _touchEventsFileLogger.addLine(strOutput);
+            _touchEventsFileLogger.addLine(output.str());
 
             _touchWaitingForPacket = false;
         }
@@ -144,11 +140,7 @@ void AdbEventsListener::_extractButtonsEvents(std::string &eventName, std::strin
                << buttonId << " "
                << pressed;
 
-        std::string strOutput = output.str();
-
-        std::cout << strOutput << std::endl;
-
-        _buttonEventsFileLogger.addLine(strOutput);
+        _buttonEventsFileLogger.addLine(output.str());
     }
 }
 

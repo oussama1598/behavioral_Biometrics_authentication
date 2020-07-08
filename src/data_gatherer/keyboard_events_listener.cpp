@@ -16,11 +16,7 @@ void KeyboardEventsListener::_mainRoute(const httplib::Request &req, httplib::Re
 
         output << timestamp << " " << keyCode;
 
-        std::string strOutput = output.str();
-
-        std::cout << strOutput << std::endl;
-
-        _keyboardEventsFileLogger.addLine(strOutput);
+        _keyboardEventsFileLogger.addLine(output.str());
     }
 
     res.set_content("Ok", "text/plain");

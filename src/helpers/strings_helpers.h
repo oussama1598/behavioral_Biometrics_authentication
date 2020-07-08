@@ -12,5 +12,7 @@ public:
     static std::string removeMultipleSpaces(const std::string &s);
 
     static int hexStringToInt(const std::string &s);
+
+    static int stringToInt(const std::string &s);
 };
 

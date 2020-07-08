@@ -44,3 +44,7 @@ int StringsHelpers::hexStringToInt(const std::string &s) {
 
     return static_cast<int>(value);
 }
+
+int StringsHelpers::stringToInt(const std::string &s) {
+    return std::stoi(s);
+}

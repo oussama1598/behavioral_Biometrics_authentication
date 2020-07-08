@@ -16,11 +16,7 @@
 
             output << timestamp << " " << state;
 
-            std::string strOutput = output.str();
-
-            std::cout << strOutput << std::endl;
-
-            _orientationEventsFileLogger.addLine(strOutput);
+            _orientationEventsFileLogger.addLine(output.str());
 
             break;
         }
