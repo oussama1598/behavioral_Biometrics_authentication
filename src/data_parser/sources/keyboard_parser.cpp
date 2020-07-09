@@ -1,6 +1,6 @@
-#include "orientation_parser.h"
+#include "keyboard_parser.h"
 
-OrientationParser::OrientationParser(const std::string &filename) {
+KeyboardParser::KeyboardParser(const std::string &filename) {
     std::fstream fileStream;
     std::string lineBuffer;
 
@@ -9,13 +9,14 @@ OrientationParser::OrientationParser(const std::string &filename) {
     if (!fileStream.is_open())
         throw std::runtime_error("File Not Opened");
 
-    _slices.push_back({false, 0, -1, {}});
+    _slices.push_back({false, 0, -1});
 
     while (std::getline(fileStream, lineBuffer)) {
         std::vector<std::string> parsedOutput = StringsHelpers::split(lineBuffer, ' ');
 
-        int timestamp = StringsHelpers::stringToInt(parsedOutput[0]);
-        int stateId = StringsHelpers::stringToInt(parsedOutput[1]);
+        long timestamp = StringsHelpers::stringToLongInt(parsedOutput[0]);
+        int keyCode = StringsHelpers::stringToInt(parsedOutput[2]);
+        std::string keyAction = parsedOutput[1];
 
         for (auto &slice: _slices) {
             if (slice.done)
@@ -26,9 +27,6 @@ OrientationParser::OrientationParser(const std::string &filename) {
 
                 _totalTime += deltaTime;
                 slice.duration += deltaTime;
-
-                // State time spent in
-                slice.states[stateId].timeSpent += deltaTime;
             }
 
             slice.lastTimestamp = timestamp;
@@ -36,16 +34,16 @@ OrientationParser::OrientationParser(const std::string &filename) {
             if (slice.duration >= 60 * 5) // 5 minutes
                 slice.done = true;
 
-            // state event changes
-            if (_lastStateId != -1 && _lastStateId != stateId) {
-                slice.states[stateId].count += 1;
+            // key events
+            if (keyAction == "press") {
+                slice.keys[keyCode].pressedTimestamp = timestamp;
+                slice.keys[keyCode].count += 1;
             }
 
-            _lastStateId = stateId;
+            if (keyAction == "release") {
+                int deltaTime = timestamp - slice.keys[keyCode].pressedTimestamp;
 
-            // add a slice every 90 seconds
-            if ((size_t) (_totalTime / 90) == _slices.size()) {
-                _slices.push_back({false, 0, -1, {}});
+                slice.keys[keyCode].duration += deltaTime;
             }
         }
     }

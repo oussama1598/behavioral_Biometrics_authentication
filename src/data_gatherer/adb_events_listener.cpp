@@ -53,9 +53,13 @@ void AdbEventsListener::_extractTouchEvents(std::string &eventName, std::string 
         }
     }
 
-    if (eventName == "ABS_MT_TOUCH_MAJOR")
+    if (eventName == "ABS_MT_TOUCH_MAJOR") {
+        if (_touchEvents.find(_currentFinderSlotIndex) == _touchEvents.end())
+            return;
+
         _touchEvents.at(_currentFinderSlotIndex).touchMajor = StringsHelpers::hexStringToInt(
                 eventValue);
+    }
 
     if (eventName == "ABS_MT_WIDTH_MAJOR") {
         _touchEvents.at(_currentFinderSlotIndex).widthMajor = StringsHelpers::hexStringToInt(
@@ -157,9 +161,9 @@ void AdbEventsListener::listenForEvents() {
 
         std::vector<std::string> parsedOutput = StringsHelpers::split(formatedOutput, ' ');
 
-        std::string eventTypePath = parsedOutput[1];
-        std::string eventName = parsedOutput[3];
-        std::string eventValue = parsedOutput[4];
+        std::string eventTypePath = parsedOutput[2];
+        std::string eventName = parsedOutput[4];
+        std::string eventValue = parsedOutput[5];
 
         std::string eventType = StringsHelpers::split(eventTypePath, '/')[3];
 

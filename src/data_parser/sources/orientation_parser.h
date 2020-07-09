@@ -31,7 +31,7 @@ private:
                 };
     };
 
-    long int totalTime{0};
+    long int _totalTime{0};
     int _lastStateId{-1};
 
     std::vector<Slice> _slices;

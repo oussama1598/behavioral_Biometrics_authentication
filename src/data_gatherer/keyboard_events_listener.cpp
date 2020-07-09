@@ -10,11 +10,14 @@ KeyboardEventsListener::KeyboardEventsListener() {
 void KeyboardEventsListener::_mainRoute(const httplib::Request &req, httplib::Response &res) {
     if (req.has_param("keycode")) {
         std::string keyCode = req.get_param_value("keycode");
+        std::string keyAction = req.get_param_value("keyaction");
         std::string timestamp = Utils::getCurrentTimeStamp();
 
         std::stringstream output;
 
-        output << timestamp << " " << keyCode;
+        output << timestamp << " "
+               << keyAction << " "
+               << keyCode;
 
         _keyboardEventsFileLogger.addLine(output.str());
     }

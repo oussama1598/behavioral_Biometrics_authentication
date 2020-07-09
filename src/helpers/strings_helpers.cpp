@@ -35,6 +35,17 @@ std::string StringsHelpers::removeMultipleSpaces(const std::string &s) {
 }
 
 int StringsHelpers::hexStringToInt(const std::string &s) {
+    int value;
+
+    std::stringstream ss;
+
+    ss << std::hex << s;
+    ss >> value;
+
+    return value;
+}
+
+int StringsHelpers::hexStringUnsignedToInt(const std::string &s) {
     unsigned int value;
 
     std::stringstream ss;
@@ -47,4 +58,8 @@ int StringsHelpers::hexStringToInt(const std::string &s) {
 
 int StringsHelpers::stringToInt(const std::string &s) {
     return std::stoi(s);
+}
+
+long StringsHelpers::stringToLongInt(const std::string &s) {
+    return std::stol(s);
 }

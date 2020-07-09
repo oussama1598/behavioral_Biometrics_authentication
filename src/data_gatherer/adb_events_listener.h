@@ -33,18 +33,12 @@ private:
 
     std::map<std::string, std::function<void(std::string &, std::string &)>> _eventsList
             {
-                    {"event0", [=](std::string &eventName, std::string &eventValue) {
+                    {"event6", [=](std::string &eventName, std::string &eventValue) {
                         this->_extractTouchEvents(eventName, eventValue);
                         this->_extractButtonsEvents(eventName, eventValue);
                     }},
-                    {"event3", [=](std::string &eventName, std::string &eventValue) {
-                        this->_extractAccelerometerEvents(eventName, eventValue);
-                    }},
-//                    {"event5", [=](std::string &eventName, std::string &eventValue) {
-//                        this->_extractGyroscopeEvents(eventName, eventValue);
-//                    }},
                     {
-                     "event6", [=](std::string &eventName, std::string &eventValue) {
+                     "event1", [=](std::string &eventName, std::string &eventValue) {
                         this->_extractButtonsEvents(eventName, eventValue);
                     }}
             };
@@ -68,7 +62,8 @@ private:
             {"KEY_BACK",       1},
             {"KEY_APPSELECT",  2},
             {"KEY_VOLUMEUP",   3},
-            {"KEY_VOLUMEDOWN", 4}
+            {"KEY_VOLUMEDOWN", 4},
+            {"KEY_POWER",      5}
     };
 
     // fileLoggers

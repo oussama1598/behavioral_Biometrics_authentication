@@ -13,6 +13,10 @@ public:
 
     static int hexStringToInt(const std::string &s);
 
+    static int hexStringUnsignedToInt(const std::string &s);
+
     static int stringToInt(const std::string &s);
+
+    static long stringToLongInt(const std::string &s);
 };
 
