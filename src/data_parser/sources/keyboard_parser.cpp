@@ -23,7 +23,7 @@ KeyboardParser::KeyboardParser(const std::string &filename) {
                 continue;
 
             if (slice.lastTimestamp != -1) {
-                int deltaTime = timestamp - slice.lastTimestamp;
+                long deltaTime = timestamp - slice.lastTimestamp;
 
                 _totalTime += deltaTime;
                 slice.duration += deltaTime;
@@ -41,7 +41,7 @@ KeyboardParser::KeyboardParser(const std::string &filename) {
             }
 
             if (keyAction == "release") {
-                int deltaTime = timestamp - slice.keys[keyCode].pressedTimestamp;
+                long deltaTime = timestamp - slice.keys[keyCode].pressedTimestamp;
 
                 slice.keys[keyCode].duration += deltaTime;
             }

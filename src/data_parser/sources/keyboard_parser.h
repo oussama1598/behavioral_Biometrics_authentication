@@ -11,13 +11,13 @@ class KeyboardParser {
 private:
     struct Key {
         int count{0};
-        int duration{0};
+        long duration{0};
         long pressedTimestamp{0};
     };
 
     struct Slice {
         bool done{false};
-        int duration{0};
+        long duration{0};
         long lastTimestamp{-1};
 
         std::map<int, Key> keys{
