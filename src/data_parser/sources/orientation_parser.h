@@ -16,6 +16,7 @@ private:
     };
 
     struct Slice {
+        bool done{false};
         int duration{0};
         int lastTimestamp{-1};
 
@@ -30,10 +31,12 @@ private:
                 };
     };
 
-    int _currentSliceIndex = 0;
+    long int totalTime{0};
+    int _lastStateId{-1};
+
     std::vector<Slice> _slices;
 
 public:
-    OrientationParser(const std::string &filename);
+    explicit OrientationParser(const std::string &filename);
 };
 
