@@ -11,7 +11,7 @@ void KeyboardEventsListener::_mainRoute(const httplib::Request &req, httplib::Re
     if (req.has_param("keycode")) {
         std::string keyCode = req.get_param_value("keycode");
         std::string keyAction = req.get_param_value("keyaction");
-        std::string timestamp = req.get_param_value("timestamp");
+        std::string timestamp = Utils::getCurrentTimeStamp();
 
         std::stringstream output;
 

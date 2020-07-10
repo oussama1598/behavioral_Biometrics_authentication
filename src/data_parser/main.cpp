@@ -1,7 +1,12 @@
-#include <data_parser/sources/keyboard_parser.h>
-#include "sources/orientation_parser.h"
+#include "data_parser.h"
 
 int main() {
-//    OrientationParser orientationParser{"data/orientation_events.txt"};
-    KeyboardParser keyboardParser{"data/keyboard_events.txt"};
+    DataParser dataParser;
+
+    dataParser.combineLogs(
+            "data/orientation_events.txt",
+            "data/keyboard_events.txt"
+    );
+
+    dataParser.getSlices();
 }

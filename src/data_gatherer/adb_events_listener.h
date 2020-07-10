@@ -9,7 +9,7 @@
 #include "lib/pstream.h"
 #include "helpers/strings_helpers.h"
 #include "helpers/utils.h"
-#include "file_logger.h"
+#include "helpers/file_logger.h"
 
 class AdbEventsListener {
 private:
