@@ -11,7 +11,7 @@ class DataParser {
 private:
     struct Key {
         int count{0};
-        long duration{0};
+        long duration{INT32_MAX};
         long pressedTimestamp{0};
     };
 
@@ -23,10 +23,14 @@ private:
 
     struct Slice {
         bool done{false};
+        bool next{true};
         long duration{0};
         long lastTimestamp{-1};
 
+        // keys data
         std::map<int, Key> keys{};
+        long keyLatency{INT32_MAX};
+        long lastKeyTimestamp{-1};
 
         std::array<State, 4> states
                 {
@@ -37,9 +41,14 @@ private:
                                 {0, -1, 0}
                         }
                 };
-    };
 
-    long _totalTime{0};
+        inline Slice() {
+            for (int i = 0; i < 26; ++i) {
+                keys.insert({65 + i, {}});
+                keys.insert({97 + i, {}});
+            }
+        }
+    };
 
     std::vector<Slice> _slices;
 
@@ -51,11 +60,14 @@ private:
 
     void _parseKeyboardLog(Slice &slice, std::vector<std::string> &parsedOutput);
 
-    void _parseOrientationLog(Slice &slice, std::vector<std::string> &parsedOutput);
+    void _parseOrientationLog(Slice &slice, std::vector<std::string> &parsedOutput) const;
+
+    void _parseTouchLog(Slice &slice, std::vector<std::string> &parsedOutput);
 
 public:
 
-    void combineLogs(const std::string &orientationFilename, const std::string &keyboardFilename);
+    void combineLogs(const std::string &orientationFilename, const std::string &keyboardFilename,
+                     const std::string &touchFilename);
 
     void getSlices();
 };

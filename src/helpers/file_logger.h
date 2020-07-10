@@ -11,6 +11,6 @@ public:
 
     ~FileLogger();
 
-    void addLine(const std::string &line);
+    void addLine(const std::string &line, bool log = true);
 };
 

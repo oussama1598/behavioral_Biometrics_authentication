@@ -10,9 +10,9 @@ FileLogger::~FileLogger() {
     fileStream.close();
 }
 
-void FileLogger::addLine(const std::string &line) {
+void FileLogger::addLine(const std::string &line, bool log) {
     if (fileStream.is_open()) {
-        std::cout << line << std::endl;
+        if (log) std::cout << line << std::endl;
 
         fileStream << line << "\n";
         fileStream.flush();
