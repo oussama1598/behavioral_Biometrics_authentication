@@ -72,6 +72,8 @@ private:
 
 private:
 
+    void _getDeviceBoundaries();
+
     void _extractTouchEvents(std::string &eventName, std::string &eventValue);
 
     void _extractAccelerometerEvents(std::string &eventName, std::string &eventValue);
@@ -81,6 +83,7 @@ private:
     void _extractButtonsEvents(std::string &eventName, std::string &eventValue);
 
 public:
+
     void listenForEvents();
 };
 

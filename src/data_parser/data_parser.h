@@ -42,6 +42,10 @@ private:
                         }
                 };
 
+        std::array<int, 9> distrubtionsOfTouchs{
+                0, 0, 0, 0, 0, 0, 0, 0, 0
+        };
+
         inline Slice() {
             for (int i = 0; i < 26; ++i) {
                 keys.insert({65 + i, {}});
@@ -53,6 +57,8 @@ private:
     std::vector<Slice> _slices;
 
     int _lastStateId{-1};
+    int _deviceWidth{0};
+    int _deviceHeight{0};
 
 private:
     void _loadLogs(std::map<long, std::string> &logValues, const std::string &filename,
@@ -70,5 +76,7 @@ public:
                      const std::string &touchFilename);
 
     void getSlices();
+
+    void _averageKeystrokeData();
 };
 

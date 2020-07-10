@@ -48,6 +48,9 @@ DataParser::_parseKeyboardLog(DataParser::Slice &slice, std::vector<std::string>
     if (keyAction == "release") {
         long deltaTime = timestamp - slice.keys[keyCode].pressedTimestamp;
 
+        if (slice.keys[keyCode].duration == INT32_MAX)
+            slice.keys[keyCode].duration = 0;
+
         slice.keys[keyCode].duration += deltaTime;
 
         slice.lastKeyTimestamp = timestamp;
@@ -82,7 +85,42 @@ DataParser::_parseOrientationLog(DataParser::Slice &slice,
 void DataParser::_parseTouchLog(DataParser::Slice &slice, std::vector<std::string> &parsedOutput) {
     slice.lastKeyTimestamp = -1;
 
-    std::cout << slice.duration << " " << parsedOutput[0] << std::endl;
+    if (parsedOutput[2] == "DEVICE_BOUNDARIES") {
+        _deviceWidth = StringsHelpers::stringToInt(parsedOutput[3]);
+        _deviceHeight = StringsHelpers::stringToInt(parsedOutput[4]);
+
+        return;
+    }
+
+    float screenPortionWidth = (float) _deviceWidth / 3;
+    float screenPortionHeight = (float) _deviceHeight / 3;
+
+//    long timestamp = StringsHelpers::stringToLongInt(parsedOutput[1]);
+
+    int x = StringsHelpers::stringToInt(parsedOutput[3]);
+    int y = StringsHelpers::stringToInt(parsedOutput[4]);
+
+    int xIndex = (int) ((float) x / screenPortionWidth);
+    int yIndex = (int) ((float) y / screenPortionHeight);
+
+    int portionIndex = (yIndex * 3) + xIndex;
+
+    slice.distrubtionsOfTouchs[portionIndex] += 1;
+}
+
+void DataParser::_averageKeystrokeData() {
+    for (auto &slice: _slices) {
+        int totalKeystrokes = 0;
+
+        for (auto &key: slice.keys) {
+            if (key.second.count != 0) {
+                key.second.duration /= key.second.count;
+                totalKeystrokes += key.second.count;
+            }
+        }
+
+        if (totalKeystrokes != 0) slice.keyLatency /= totalKeystrokes;
+    }
 }
 
 
@@ -153,6 +191,8 @@ void DataParser::getSlices() {
     }
 
     fileStream.close();
+
+    _averageKeystrokeData();
 
     std::cout << "ok" << std::endl;
 }

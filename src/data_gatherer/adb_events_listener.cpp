@@ -3,6 +3,41 @@
 // protocol reference touch screen https://www.kernel.org/doc/html/v4.18/input/multi-touch-protocol.html?fbclid=IwAR0BR7xXPjYubsk6em5Hyg2hF_i6cpENp6rMWBmUGboWJjZPknso1PMuqso
 // protocol reference other events https://www.kernel.org/doc/Documentation/input/event-codes.txt
 
+void AdbEventsListener::_getDeviceBoundaries() {
+    redi::ipstream widthEvent("adb shell \"dumpsys input | grep 'X: min='\"");
+    redi::ipstream heightEvent("adb shell \"dumpsys input | grep 'Y: min='\"");
+
+    std::string outputBuffer;
+
+    std::string width, height;
+
+    while (std::getline(widthEvent, outputBuffer)) {
+        std::string formatedOutput = StringsHelpers::removeMultipleSpaces(outputBuffer);
+        std::vector<std::string> parsedOutput = StringsHelpers::split(formatedOutput, ',');
+        std::vector<std::string> parsedWidth = StringsHelpers::split(parsedOutput[1], '=');
+
+        width = parsedWidth[1];
+    }
+
+    while (std::getline(heightEvent, outputBuffer)) {
+        std::string formatedOutput = StringsHelpers::removeMultipleSpaces(outputBuffer);
+        std::vector<std::string> parsedOutput = StringsHelpers::split(formatedOutput, ',');
+        std::vector<std::string> parsedData = StringsHelpers::split(parsedOutput[1], '=');
+
+        height = parsedData[1];
+    }
+
+
+    std::stringstream ss;
+
+    ss << Utils::getCurrentTimeStamp() << " "
+       << "DEVICE_BOUNDARIES" << " "
+       << width << " "
+       << height;
+
+    _touchEventsFileLogger.addLine(ss.str());
+}
+
 void AdbEventsListener::_extractTouchEvents(std::string &eventName, std::string &eventValue) {
     if (eventName == "ABS_MT_SLOT")
         _currentFinderSlotIndex = StringsHelpers::hexStringToInt(eventValue);
@@ -149,6 +184,8 @@ void AdbEventsListener::_extractButtonsEvents(std::string &eventName, std::strin
 }
 
 void AdbEventsListener::listenForEvents() {
+    _getDeviceBoundaries();
+
     redi::ipstream eventListener("adb shell getevent -lt");
     std::string outputBuffer;
 
