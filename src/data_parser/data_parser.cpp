@@ -95,7 +95,8 @@ void DataParser::_parseTouchLog(DataParser::Slice &slice, std::vector<std::strin
     float screenPortionWidth = (float) _deviceWidth / 3;
     float screenPortionHeight = (float) _deviceHeight / 3;
 
-//    long timestamp = StringsHelpers::stringToLongInt(parsedOutput[1]);
+    long timestamp = StringsHelpers::stringToLongInt(parsedOutput[1]);
+    int fingerId = StringsHelpers::stringToInt(parsedOutput[2]);
 
     int x = StringsHelpers::stringToInt(parsedOutput[3]);
     int y = StringsHelpers::stringToInt(parsedOutput[4]);
@@ -106,6 +107,26 @@ void DataParser::_parseTouchLog(DataParser::Slice &slice, std::vector<std::strin
     int portionIndex = (yIndex * 3) + xIndex;
 
     slice.distrubtionsOfTouchs[portionIndex] += 1;
+
+    if (_lastTouches.find(fingerId) == _lastTouches.end())
+        _lastTouches.insert({fingerId, {timestamp, x, y}});
+
+    auto &lastTouch = _lastTouches.at(fingerId);
+
+    if (lastTouch.timestamp != timestamp &&
+        timestamp - lastTouch.timestamp < 500 &&
+        (lastTouch.x != x || lastTouch.y != y) &&
+        Utils::getDistanceSquared(lastTouch.x, lastTouch.y, x, y) < std::pow(500, 2)) {
+        double angle = Utils::getVectorDirection(lastTouch.x, _deviceHeight - lastTouch.y, x,
+                                                 _deviceHeight - y);
+
+        // TODO find which range it belongs
+
+        std::cout << angle << std::endl;
+    }
+
+    // update the last touch
+    lastTouch = {timestamp, x, y};
 }
 
 void DataParser::_averageKeystrokeData() {
@@ -193,6 +214,4 @@ void DataParser::getSlices() {
     fileStream.close();
 
     _averageKeystrokeData();
-
-    std::cout << "ok" << std::endl;
 }

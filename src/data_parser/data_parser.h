@@ -6,6 +6,7 @@
 
 #include "helpers/file_logger.h"
 #include "helpers/strings_helpers.h"
+#include "helpers/utils.h"
 
 class DataParser {
 private:
@@ -19,6 +20,11 @@ private:
         int count{0};
         long lastTimestamp{-1};
         long timeSpent{0};
+    };
+
+    struct Touch {
+        long timestamp{-1};
+        int x{-1}, y{-1};
     };
 
     struct Slice {
@@ -57,8 +63,11 @@ private:
     std::vector<Slice> _slices;
 
     int _lastStateId{-1};
+
     int _deviceWidth{0};
     int _deviceHeight{0};
+
+    std::map<int, Touch> _lastTouches;
 
 private:
     void _loadLogs(std::map<long, std::string> &logValues, const std::string &filename,
