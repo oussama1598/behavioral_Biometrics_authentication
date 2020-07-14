@@ -53,9 +53,7 @@ private:
                         }
                 };
 
-        std::array<int, 9> distrubtionsOfTouchs{
-                0, 0, 0, 0, 0, 0, 0, 0, 0
-        };
+        std::array<int, 9> distrubtionsOfTouchs{};
 
         long totalMovements{0};
         std::array<TouchDistribution, 9> touchDirections{{
@@ -70,9 +68,9 @@ private:
                                                                  {}
                                                          }};
 
-        std::array<int, 9> travelDistanceDistributions{
-                0, 0, 0, 0, 0, 0, 0, 0, 0
-        };
+        std::array<int, 9> travelDistanceDistributions{};
+
+        std::array<double, 9> extremeSpeeds{};
 
         inline Slice() {
             for (int i = 0; i < 26; ++i) {
@@ -100,7 +98,8 @@ private:
 
     void _parseOrientationLog(Slice &slice, std::vector<std::string> &parsedOutput) const;
 
-    void _addTouchData(DataParser::Slice &slice, const Touch &firstTouch, const Touch &lastTouch) const;
+    void
+    _addTouchData(DataParser::Slice &slice, const Touch &firstTouch, const Touch &lastTouch) const;
 
     void _parseTouchLog(Slice &slice, std::vector<std::string> &parsedOutput);
 

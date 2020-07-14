@@ -86,22 +86,29 @@ void
 DataParser::_addTouchData(DataParser::Slice &slice, const DataParser::Touch &firstTouch,
                           const DataParser::Touch &lastTouch) const {
     long deltaTime = lastTouch.timestamp - firstTouch.timestamp;
-    double traveledDistance = Utils::getDistanceSquared(lastTouch.x, lastTouch.y, firstTouch.x,
-                                                        firstTouch.y);
+    double traveledDistance = Utils::getDistance(firstTouch.x, firstTouch.y, lastTouch.x,
+                                                 lastTouch.y);
+    double speed = traveledDistance / (double) deltaTime;
+
     slice.totalMovements += 1;
 
     // for Average Speed per Movement Direction and Movement Direction Histogram
-    double angle = Utils::getVectorDirection(lastTouch.x, _deviceHeight - lastTouch.y, firstTouch.x,
-                                             _deviceHeight - firstTouch.y);
+    double angle = Utils::getVectorDirection(firstTouch.x, _deviceHeight - firstTouch.y,
+                                             lastTouch.x,
+                                             _deviceHeight - lastTouch.y);
+
     int directionId = (int) (angle / 45);
 
     slice.touchDirections[directionId].count += 1;
-    slice.touchDirections[directionId].speed += traveledDistance / (double) deltaTime;
+    slice.touchDirections[directionId].speed += speed;
 
-    // Travel Distance Histogram
+    // for Travel Distance Histogram
     int distanceId = (int) (traveledDistance / 200);
 
     slice.travelDistanceDistributions[distanceId] += 1;
+
+    // for Extreme Movement Speed Relative to Travel Distance
+    slice.extremeSpeeds[distanceId] = std::max(slice.extremeSpeeds[distanceId], speed);
 }
 
 void DataParser::_parseTouchLog(DataParser::Slice &slice, std::vector<std::string> &parsedOutput) {
@@ -140,7 +147,7 @@ void DataParser::_parseTouchLog(DataParser::Slice &slice, std::vector<std::strin
     auto &firstTouch = _firstTouches.at(fingerId);
 
     if (_lastTouches.find(fingerId) == _lastTouches.end()) {
-        if (Utils::getDistanceSquared(firstTouch.x, firstTouch.y, x, y) >= 500) {
+        if (Utils::getDistance(firstTouch.x, firstTouch.y, x, y) >= 500) {
             _addTouchData(slice, firstTouch, {timestamp, x, y});
 
             _firstTouches.erase(fingerId);
@@ -159,11 +166,12 @@ void DataParser::_parseTouchLog(DataParser::Slice &slice, std::vector<std::strin
         _addTouchData(slice, firstTouch, lastTouch);
 
         firstTouch = {timestamp, x, y};
+        _lastTouches.erase(fingerId);
 
         return;
     }
 
-    if (Utils::getDistanceSquared(firstTouch.x, firstTouch.y, x, y) >= 500) {
+    if (Utils::getDistance(firstTouch.x, firstTouch.y, x, y) >= 500) {
         _addTouchData(slice, firstTouch, {timestamp, x, y});
 
         _firstTouches.erase(fingerId);

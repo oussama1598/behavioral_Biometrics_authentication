@@ -14,5 +14,5 @@ set(SOURCES
         keyboard_events_listener.h
         orientation_events_listener.cpp orientation_events_listener.h)
 
-add_executable(data_gatherer ${SOURCES})
-target_link_libraries(data_gatherer PRIVATE helpers Threads::Threads)
+add_executable(data_gatherer_bin ${SOURCES})
+target_link_libraries(data_gatherer_bin PRIVATE helpers Threads::Threads)
