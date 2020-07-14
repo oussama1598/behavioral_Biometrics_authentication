@@ -82,6 +82,28 @@ DataParser::_parseOrientationLog(DataParser::Slice &slice,
     }
 }
 
+void
+DataParser::_addTouchData(DataParser::Slice &slice, const DataParser::Touch &firstTouch,
+                          const DataParser::Touch &lastTouch) const {
+    long deltaTime = lastTouch.timestamp - firstTouch.timestamp;
+    double traveledDistance = Utils::getDistanceSquared(lastTouch.x, lastTouch.y, firstTouch.x,
+                                                        firstTouch.y);
+    slice.totalMovements += 1;
+
+    // for Average Speed per Movement Direction and Movement Direction Histogram
+    double angle = Utils::getVectorDirection(lastTouch.x, _deviceHeight - lastTouch.y, firstTouch.x,
+                                             _deviceHeight - firstTouch.y);
+    int directionId = (int) (angle / 45);
+
+    slice.touchDirections[directionId].count += 1;
+    slice.touchDirections[directionId].speed += traveledDistance / (double) deltaTime;
+
+    // Travel Distance Histogram
+    int distanceId = (int) (traveledDistance / 200);
+
+    slice.travelDistanceDistributions[distanceId] += 1;
+}
+
 void DataParser::_parseTouchLog(DataParser::Slice &slice, std::vector<std::string> &parsedOutput) {
     slice.lastKeyTimestamp = -1;
 
@@ -106,27 +128,51 @@ void DataParser::_parseTouchLog(DataParser::Slice &slice, std::vector<std::strin
 
     int portionIndex = (yIndex * 3) + xIndex;
 
+    // for Distribution of Actions on the Screen
     slice.distrubtionsOfTouchs[portionIndex] += 1;
 
-    if (_lastTouches.find(fingerId) == _lastTouches.end())
+    if (_firstTouches.find(fingerId) == _firstTouches.end()) {
+        _firstTouches.insert({fingerId, {timestamp, x, y}});
+
+        return;
+    }
+
+    auto &firstTouch = _firstTouches.at(fingerId);
+
+    if (_lastTouches.find(fingerId) == _lastTouches.end()) {
+        if (Utils::getDistanceSquared(firstTouch.x, firstTouch.y, x, y) >= 500) {
+            _addTouchData(slice, firstTouch, {timestamp, x, y});
+
+            _firstTouches.erase(fingerId);
+
+            return;
+        }
+
         _lastTouches.insert({fingerId, {timestamp, x, y}});
+
+        return;
+    }
 
     auto &lastTouch = _lastTouches.at(fingerId);
 
-    if (lastTouch.timestamp != timestamp &&
-        timestamp - lastTouch.timestamp < 500 &&
-        (lastTouch.x != x || lastTouch.y != y) &&
-        Utils::getDistanceSquared(lastTouch.x, lastTouch.y, x, y) < std::pow(500, 2)) {
-        double angle = Utils::getVectorDirection(lastTouch.x, _deviceHeight - lastTouch.y, x,
-                                                 _deviceHeight - y);
+    if (timestamp - lastTouch.timestamp > 500) {
+        _addTouchData(slice, firstTouch, lastTouch);
 
-        // TODO find which range it belongs
+        firstTouch = {timestamp, x, y};
 
-        std::cout << angle << std::endl;
+        return;
     }
 
-    // update the last touch
-    lastTouch = {timestamp, x, y};
+    if (Utils::getDistanceSquared(firstTouch.x, firstTouch.y, x, y) >= 500) {
+        _addTouchData(slice, firstTouch, {timestamp, x, y});
+
+        _firstTouches.erase(fingerId);
+        _lastTouches.erase(fingerId);
+
+        return;
+    } else {
+        lastTouch = {timestamp, x, y};
+    }
 }
 
 void DataParser::_averageKeystrokeData() {
@@ -214,4 +260,7 @@ void DataParser::getSlices() {
     fileStream.close();
 
     _averageKeystrokeData();
+
+    // TODO check if touch events do have a dangling lastTouch
+//    _averageTouchData();
 }

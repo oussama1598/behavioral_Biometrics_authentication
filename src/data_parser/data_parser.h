@@ -27,6 +27,11 @@ private:
         int x{-1}, y{-1};
     };
 
+    struct TouchDistribution {
+        int count{0};
+        double speed{0};
+    };
+
     struct Slice {
         bool done{false};
         bool next{true};
@@ -52,6 +57,23 @@ private:
                 0, 0, 0, 0, 0, 0, 0, 0, 0
         };
 
+        long totalMovements{0};
+        std::array<TouchDistribution, 9> touchDirections{{
+                                                                 {},
+                                                                 {},
+                                                                 {},
+                                                                 {},
+                                                                 {},
+                                                                 {},
+                                                                 {},
+                                                                 {},
+                                                                 {}
+                                                         }};
+
+        std::array<int, 9> travelDistanceDistributions{
+                0, 0, 0, 0, 0, 0, 0, 0, 0
+        };
+
         inline Slice() {
             for (int i = 0; i < 26; ++i) {
                 keys.insert({65 + i, {}});
@@ -67,6 +89,7 @@ private:
     int _deviceWidth{0};
     int _deviceHeight{0};
 
+    std::map<int, Touch> _firstTouches;
     std::map<int, Touch> _lastTouches;
 
 private:
@@ -76,6 +99,8 @@ private:
     void _parseKeyboardLog(Slice &slice, std::vector<std::string> &parsedOutput);
 
     void _parseOrientationLog(Slice &slice, std::vector<std::string> &parsedOutput) const;
+
+    void _addTouchData(DataParser::Slice &slice, const Touch &firstTouch, const Touch &lastTouch) const;
 
     void _parseTouchLog(Slice &slice, std::vector<std::string> &parsedOutput);
 

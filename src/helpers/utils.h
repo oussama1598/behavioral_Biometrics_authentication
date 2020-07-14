@@ -11,7 +11,7 @@ public:
 
     static std::string getCurrentTime();
 
-    static int getDistanceSquared(int x1, int y1, int x2, int y2);
+    static double getDistanceSquared(int x1, int y1, int x2, int y2);
 
     static double getVectorDirection(int x1, int y1, int x2, int y2);
 };
