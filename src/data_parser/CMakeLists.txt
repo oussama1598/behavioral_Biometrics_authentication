@@ -1,6 +1,6 @@
 set(SOURCES data_parser.cpp data_parser.h)
 
-add_library(data_parser ${SOURCES})
+add_library(data_parser SHARED ${SOURCES})
 target_link_libraries(data_parser helpers)
 target_include_directories(helpers INTERFACE ..)
 

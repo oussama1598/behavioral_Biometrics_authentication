@@ -84,13 +84,11 @@ DataParser::_parseOrientationLog(DataParser::Slice &slice,
 
 void
 DataParser::_addTouchData(DataParser::Slice &slice, const DataParser::Touch &firstTouch,
-                          const DataParser::Touch &lastTouch) const {
+                          const DataParser::Touch &lastTouch) {
     long deltaTime = lastTouch.timestamp - firstTouch.timestamp;
     double traveledDistance = Utils::getDistance(firstTouch.x, firstTouch.y, lastTouch.x,
                                                  lastTouch.y);
     double speed = traveledDistance / (double) deltaTime;
-
-    slice.totalMovements += 1;
 
     // for Average Speed per Movement Direction and Movement Direction Histogram
     double angle = Utils::getVectorDirection(firstTouch.x, _deviceHeight - firstTouch.y,
@@ -99,16 +97,31 @@ DataParser::_addTouchData(DataParser::Slice &slice, const DataParser::Touch &fir
 
     int directionId = (int) (angle / 45);
 
-    slice.touchDirections[directionId].count += 1;
-    slice.touchDirections[directionId].speed += speed;
+    slice.movementDirectionsHistogram[directionId] += 1;
+    slice.averageSpeedPerMovementDirectionHistogram[directionId] += speed;
 
     // for Travel Distance Histogram
     int distanceId = (int) (traveledDistance / 200);
 
-    slice.travelDistanceDistributions[distanceId] += 1;
+    slice.travelDistanceHistogram[distanceId] += 1;
+    slice.averageSpeedRelativeToTravelDistanceHistogram[distanceId] += speed;
 
     // for Extreme Movement Speed Relative to Travel Distance
-    slice.extremeSpeeds[distanceId] = std::max(slice.extremeSpeeds[distanceId], speed);
+    slice.extremeSpeedsRelativeToTravelDistanceHistogram[distanceId] = std::max(
+            slice.extremeSpeedsRelativeToTravelDistanceHistogram[distanceId], speed);
+
+    if (_lastTouchMovementTimestamp == -1) {
+        _lastTouchMovementTimestamp = lastTouch.timestamp;
+    } else {
+        // for Movement Elapsed Time Histogram
+        long deltaTimeMovement = firstTouch.timestamp - _lastTouchMovementTimestamp;
+
+        int timeId = (int) (deltaTimeMovement / 500);
+
+        slice.movementElapsedTimeHistogram[timeId] += 1;
+
+        _lastTouchMovementTimestamp = lastTouch.timestamp;
+    }
 }
 
 void DataParser::_parseTouchLog(DataParser::Slice &slice, std::vector<std::string> &parsedOutput) {
@@ -198,6 +211,29 @@ void DataParser::_averageKeystrokeData() {
     }
 }
 
+void DataParser::_averageTouchData() {
+    // check if touch events do have a dangling lastTouch
+
+    for (auto &lastTouch: _lastTouches) {
+        _addTouchData(_slices.back(), lastTouch.second, _firstTouches.at(lastTouch.first));
+
+        _lastTouches.erase(lastTouch.first);
+        _firstTouches.erase(lastTouch.first);
+    }
+
+    for (auto &slice: _slices) {
+        for (int i = 0; i < 9; ++i) {
+            // average speed per movement direction
+            if (slice.movementDirectionsHistogram[i] != 0)
+                slice.averageSpeedPerMovementDirectionHistogram[i] /= slice.movementDirectionsHistogram[i];
+
+            // average speed relative to travel distance
+            if (slice.travelDistanceHistogram[i] != 0)
+                slice.averageSpeedRelativeToTravelDistanceHistogram[i] /= slice.travelDistanceHistogram[i];
+        }
+    }
+}
+
 
 void DataParser::combineLogs(const std::string &orientationFilename,
                              const std::string &keyboardFilename,
@@ -215,7 +251,7 @@ void DataParser::combineLogs(const std::string &orientationFilename,
     }
 }
 
-void DataParser::getSlices() {
+void DataParser::parseDataSlices() {
     std::fstream fileStream;
     std::string lineBuffer;
 
@@ -268,7 +304,74 @@ void DataParser::getSlices() {
     fileStream.close();
 
     _averageKeystrokeData();
+    _averageTouchData();
 
-    // TODO check if touch events do have a dangling lastTouch
-//    _averageTouchData();
+    std::vector<std::array<double, 10>> dataVectors;
+
+
+}
+
+std::vector<DataParser::dataVector> DataParser::getDataVectors() {
+    std::vector<dataVector> dataVectors;
+
+    for (auto &slice: _slices) {
+        dataVector dataVector;
+
+        // Orientation Histogram
+        for (auto &state: slice.states) {
+            dataVector.push_back(state.count);
+        }
+
+        // Orientation Time Histogram
+        for (auto &state: slice.states) {
+            dataVector.push_back(state.timeSpent);
+        }
+
+        // Keystroke duration
+        for (auto &key: slice.keys) {
+            dataVector.push_back(key.second.duration);
+        }
+
+        // Keystroke latency
+        dataVector.push_back(slice.keyLatency);
+
+        // Distribution of Actions on the Screen
+        for (auto &screenPortionCount: slice.distrubtionsOfTouchs) {
+            dataVector.push_back(screenPortionCount);
+        }
+
+        // Movement Direction Histogram
+        for (auto &movementDirection: slice.movementDirectionsHistogram) {
+            dataVector.push_back(movementDirection);
+        }
+
+        // Average Speed per Movement Direction
+        for (auto &averageSpeedPerMovementDirection: slice.averageSpeedPerMovementDirectionHistogram) {
+            dataVector.push_back(averageSpeedPerMovementDirection);
+        }
+
+        // Travel Distance Histogram
+        for (auto &travelDistance: slice.travelDistanceHistogram) {
+            dataVector.push_back(travelDistance);
+        }
+
+        // Extreme Movement Speed Relative to Travel Distance
+        for (auto &extremeMovementRelativeToTravelDistance: slice.extremeSpeedsRelativeToTravelDistanceHistogram) {
+            dataVector.push_back(extremeMovementRelativeToTravelDistance);
+        }
+
+        // Movement Elapsed Time Histogram
+        for (auto &movementElapsedTime: slice.movementElapsedTimeHistogram) {
+            dataVector.push_back(movementElapsedTime);
+        }
+
+        // Average Movement Speed Relative to Travel Distance
+        for (auto &averageSpeedRelativeToTravelDistance: slice.averageSpeedRelativeToTravelDistanceHistogram) {
+            dataVector.push_back(averageSpeedRelativeToTravelDistance);
+        }
+
+        dataVectors.push_back(dataVector);
+    }
+
+    return dataVectors;
 }

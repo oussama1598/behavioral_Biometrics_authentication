@@ -9,5 +9,5 @@ int main() {
             "data/touch_events.txt"
     );
 
-    dataParser.getSlices();
+    dataParser.parseDataSlices();
 }
