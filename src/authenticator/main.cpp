@@ -12,4 +12,8 @@ int main() {
             "data/ibtissam_keyboard_events.txt",
             "data/ibtissam_touch_events.txt"
     };
+
+    authenticator.train();
+
+//    std::cout << authenticator.authenticate({}) << std::endl;
 }
