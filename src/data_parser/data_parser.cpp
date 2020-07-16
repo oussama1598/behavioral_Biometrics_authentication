@@ -13,7 +13,7 @@ void DataParser::_loadLogs(std::map<long, std::string> &logValues, const std::st
 
     while (std::getline(logs, lineBuffer)) {
         std::vector<std::string> parsedOutput = StringsHelpers::split(lineBuffer, ' ');
-        long timestamp = StringsHelpers::stringToLongInt(parsedOutput[0]);
+        long timestamp = StringsHelpers::stringToLongInt(parsedOutput.at(0));
 
         logValues.insert({timestamp, logName + " " + lineBuffer});
     }
@@ -23,9 +23,9 @@ void DataParser::_loadLogs(std::map<long, std::string> &logValues, const std::st
 
 void
 DataParser::_parseKeyboardLog(DataParser::Slice &slice, std::vector<std::string> &parsedOutput) {
-    long timestamp = StringsHelpers::stringToLongInt(parsedOutput[1]);
-    std::string keyAction = parsedOutput[2];
-    int keyCode = StringsHelpers::stringToInt(parsedOutput[3]);
+    long timestamp = StringsHelpers::stringToLongInt(parsedOutput.at(1));
+    std::string keyAction = parsedOutput.at(2);
+    int keyCode = StringsHelpers::stringToInt(parsedOutput.at(3));
 
     if (
             (keyCode < 65 || keyCode > 90) &&
@@ -33,9 +33,11 @@ DataParser::_parseKeyboardLog(DataParser::Slice &slice, std::vector<std::string>
             )
         return;
 
+    auto &key = slice.keys.at(keyCode);
+
     if (keyAction == "press") {
-        slice.keys[keyCode].pressedTimestamp = timestamp;
-        slice.keys[keyCode].count += 1;
+        key->pressedTimestamp = timestamp;
+        key->count += 1;
 
         if (slice.lastKeyTimestamp != -1) {
             long deltaTime = timestamp - slice.lastKeyTimestamp;
@@ -46,12 +48,12 @@ DataParser::_parseKeyboardLog(DataParser::Slice &slice, std::vector<std::string>
     }
 
     if (keyAction == "release") {
-        long deltaTime = timestamp - slice.keys[keyCode].pressedTimestamp;
+        long deltaTime = timestamp - key->pressedTimestamp;
 
-        if (slice.keys[keyCode].duration == INT32_MAX)
-            slice.keys[keyCode].duration = 0;
+        if (slice.keys.at(keyCode)->duration == INT32_MAX)
+            key->duration = 0;
 
-        slice.keys[keyCode].duration += deltaTime;
+        key->duration += deltaTime;
 
         slice.lastKeyTimestamp = timestamp;
 
@@ -64,21 +66,21 @@ DataParser::_parseKeyboardLog(DataParser::Slice &slice, std::vector<std::string>
 void
 DataParser::_parseOrientationLog(DataParser::Slice &slice,
                                  std::vector<std::string> &parsedOutput) const {
-    long timestamp = StringsHelpers::stringToLongInt(parsedOutput[1]);
-    int stateId = StringsHelpers::stringToInt(parsedOutput[2]);
+    long timestamp = StringsHelpers::stringToLongInt(parsedOutput.at(1));
+    int stateId = StringsHelpers::stringToInt(parsedOutput.at(2));
 
-    auto &state = slice.states[stateId];
+    auto &state = slice.states.at(stateId);
 
     if (state.lastTimestamp != -1) {
         long deltaTime = timestamp - state.lastTimestamp;
 
-        slice.states[stateId].timeSpent += deltaTime;
+        slice.states.at(stateId).timeSpent += deltaTime;
     }
 
     state.lastTimestamp = timestamp;
 
     if (_lastStateId != -1 && _lastStateId != stateId) {
-        slice.states[stateId].count += 1;
+        slice.states.at(stateId).count += 1;
     }
 }
 
@@ -90,35 +92,40 @@ DataParser::_addTouchData(DataParser::Slice &slice, const DataParser::Touch &fir
                                                  lastTouch.y);
     double speed = traveledDistance / (double) deltaTime;
 
+    if (speed < 0 || deltaTime <= 0) speed = 0;
+
     // for Average Speed per Movement Direction and Movement Direction Histogram
     double angle = Utils::getVectorDirection(firstTouch.x, _deviceHeight - firstTouch.y,
                                              lastTouch.x,
                                              _deviceHeight - lastTouch.y);
 
+    if (angle >= 360) angle = 0;
+
     int directionId = (int) (angle / 45);
 
-    slice.movementDirectionsHistogram[directionId] += 1;
-    slice.averageSpeedPerMovementDirectionHistogram[directionId] += speed;
-
+    slice.movementDirectionsHistogram.at(directionId) += 1;
+    slice.averageSpeedPerMovementDirectionHistogram.at(directionId) += speed;
+    
     // for Travel Distance Histogram
     int distanceId = (int) (traveledDistance / 200);
 
-    slice.travelDistanceHistogram[distanceId] += 1;
-    slice.averageSpeedRelativeToTravelDistanceHistogram[distanceId] += speed;
+    slice.travelDistanceHistogram.at(distanceId) += 1;
+    slice.averageSpeedRelativeToTravelDistanceHistogram.at(distanceId) += speed;
 
     // for Extreme Movement Speed Relative to Travel Distance
-    slice.extremeSpeedsRelativeToTravelDistanceHistogram[distanceId] = std::max(
-            slice.extremeSpeedsRelativeToTravelDistanceHistogram[distanceId], speed);
+    slice.extremeSpeedsRelativeToTravelDistanceHistogram.at(distanceId) = std::max(
+            slice.extremeSpeedsRelativeToTravelDistanceHistogram.at(distanceId), speed);
 
     if (_lastTouchMovementTimestamp == -1) {
         _lastTouchMovementTimestamp = lastTouch.timestamp;
     } else {
         // for Movement Elapsed Time Histogram
         long deltaTimeMovement = firstTouch.timestamp - _lastTouchMovementTimestamp;
-
         int timeId = (int) (deltaTimeMovement / 500);
 
-        slice.movementElapsedTimeHistogram[timeId] += 1;
+        timeId = std::clamp(timeId, 0, 8);
+
+        slice.movementElapsedTimeHistogram.at(timeId) += 1;
 
         _lastTouchMovementTimestamp = lastTouch.timestamp;
     }
@@ -127,9 +134,9 @@ DataParser::_addTouchData(DataParser::Slice &slice, const DataParser::Touch &fir
 void DataParser::_parseTouchLog(DataParser::Slice &slice, std::vector<std::string> &parsedOutput) {
     slice.lastKeyTimestamp = -1;
 
-    if (parsedOutput[2] == "DEVICE_BOUNDARIES") {
-        _deviceWidth = StringsHelpers::stringToInt(parsedOutput[3]);
-        _deviceHeight = StringsHelpers::stringToInt(parsedOutput[4]);
+    if (parsedOutput.at(2) == "DEVICE_BOUNDARIES") {
+        _deviceWidth = StringsHelpers::stringToInt(parsedOutput.at(3));
+        _deviceHeight = StringsHelpers::stringToInt(parsedOutput.at(4));
 
         return;
     }
@@ -137,11 +144,11 @@ void DataParser::_parseTouchLog(DataParser::Slice &slice, std::vector<std::strin
     float screenPortionWidth = (float) _deviceWidth / 3;
     float screenPortionHeight = (float) _deviceHeight / 3;
 
-    long timestamp = StringsHelpers::stringToLongInt(parsedOutput[1]);
-    int fingerId = StringsHelpers::stringToInt(parsedOutput[2]);
+    long timestamp = StringsHelpers::stringToLongInt(parsedOutput.at(1));
+    int fingerId = StringsHelpers::stringToInt(parsedOutput.at(2));
 
-    int x = StringsHelpers::stringToInt(parsedOutput[3]);
-    int y = StringsHelpers::stringToInt(parsedOutput[4]);
+    int x = StringsHelpers::stringToInt(parsedOutput.at(3));
+    int y = StringsHelpers::stringToInt(parsedOutput.at(4));
 
     int xIndex = (int) ((float) x / screenPortionWidth);
     int yIndex = (int) ((float) y / screenPortionHeight);
@@ -149,7 +156,7 @@ void DataParser::_parseTouchLog(DataParser::Slice &slice, std::vector<std::strin
     int portionIndex = (yIndex * 3) + xIndex;
 
     // for Distribution of Actions on the Screen
-    slice.distrubtionsOfTouchs[portionIndex] += 1;
+    slice.distrubtionsOfTouchs.at(portionIndex) += 1;
 
     if (_firstTouches.find(fingerId) == _firstTouches.end()) {
         _firstTouches.insert({fingerId, {timestamp, x, y}});
@@ -179,13 +186,14 @@ void DataParser::_parseTouchLog(DataParser::Slice &slice, std::vector<std::strin
         _addTouchData(slice, firstTouch, lastTouch);
 
         firstTouch = {timestamp, x, y};
+
         _lastTouches.erase(fingerId);
 
         return;
     }
 
     if (Utils::getDistance(firstTouch.x, firstTouch.y, x, y) >= 500) {
-        _addTouchData(slice, firstTouch, {timestamp, x, y});
+//        _addTouchData(slice, firstTouch, {timestamp, x, y});
 
         _firstTouches.erase(fingerId);
         _lastTouches.erase(fingerId);
@@ -200,14 +208,14 @@ void DataParser::_averageKeystrokeData() {
     for (auto &slice: _slices) {
         int totalKeystrokes = 0;
 
-        for (auto &key: slice.keys) {
-            if (key.second.count != 0) {
-                key.second.duration /= key.second.count;
-                totalKeystrokes += key.second.count;
+        for (auto &key: slice->keys) {
+            if (key.second->count != 0) {
+                key.second->duration /= key.second->count;
+                totalKeystrokes += key.second->count;
             }
         }
 
-        if (totalKeystrokes != 0) slice.keyLatency /= totalKeystrokes;
+        if (totalKeystrokes != 0) slice->keyLatency /= totalKeystrokes;
     }
 }
 
@@ -215,21 +223,25 @@ void DataParser::_averageTouchData() {
     // check if touch events do have a dangling lastTouch
 
     for (auto &lastTouch: _lastTouches) {
-        _addTouchData(_slices.back(), lastTouch.second, _firstTouches.at(lastTouch.first));
-
-        _lastTouches.erase(lastTouch.first);
-        _firstTouches.erase(lastTouch.first);
+        _addTouchData(*_slices.back(), lastTouch.second, _firstTouches.at(lastTouch.first));
     }
+
+    _lastTouches.clear();
+    _firstTouches.clear();
 
     for (auto &slice: _slices) {
         for (int i = 0; i < 9; ++i) {
             // average speed per movement direction
-            if (slice.movementDirectionsHistogram[i] != 0)
-                slice.averageSpeedPerMovementDirectionHistogram[i] /= slice.movementDirectionsHistogram[i];
+            if (i < 8) {
+                if (slice->movementDirectionsHistogram.at(i) != 0)
+                    slice->averageSpeedPerMovementDirectionHistogram.at(
+                            i) /= slice->movementDirectionsHistogram.at(i);
+            }
 
             // average speed relative to travel distance
-            if (slice.travelDistanceHistogram[i] != 0)
-                slice.averageSpeedRelativeToTravelDistanceHistogram[i] /= slice.travelDistanceHistogram[i];
+            if (slice->travelDistanceHistogram.at(i) != 0)
+                slice->averageSpeedRelativeToTravelDistanceHistogram.at(
+                        i) /= slice->travelDistanceHistogram.at(i);
         }
     }
 }
@@ -260,43 +272,47 @@ void DataParser::parseDataSlices() {
     if (!fileStream.is_open())
         throw std::runtime_error("File Not Opened");
 
-    _slices.emplace_back(Slice());
+    _slices.push_back(new Slice());
 
     while (std::getline(fileStream, lineBuffer)) {
         std::vector<std::string> parsedOutput = StringsHelpers::split(lineBuffer, ' ');
 
-        std::string logName = parsedOutput[0];
-        long timestamp = StringsHelpers::stringToLongInt(parsedOutput[1]);
+        std::string logName = parsedOutput.at(0);
+        long timestamp = StringsHelpers::stringToLongInt(parsedOutput.at(1));
 
-        for (auto &slice: _slices) {
-            if (slice.done)
+        size_t size = _slices.size();
+
+        for (size_t i = 0; i < size; ++i) {
+            auto slice = _slices.at(i);
+
+            if (slice->done)
                 continue;
 
-            if (slice.lastTimestamp != -1) {
-                long deltaTime = timestamp - slice.lastTimestamp;
+            if (slice->lastTimestamp != -1) {
+                long deltaTime = timestamp - slice->lastTimestamp;
 
-                slice.duration += deltaTime;
+                slice->duration += deltaTime;
             }
 
-            slice.lastTimestamp = timestamp;
+            slice->lastTimestamp = timestamp;
 
-            if (slice.duration >= 60 * 5 * 1000) // 5 minutes
-                slice.done = true;
+            if (slice->duration >= 60 * 5 * 1000) // 5 minutes
+                slice->done = true;
 
             if (logName == "KEYBOARD")
-                _parseKeyboardLog(slice, parsedOutput);
+                _parseKeyboardLog(*slice, parsedOutput);
 
             if (logName == "ORIENTATION")
-                _parseOrientationLog(slice, parsedOutput);
+                _parseOrientationLog(*slice, parsedOutput);
 
             if (logName == "TOUCH")
-                _parseTouchLog(slice, parsedOutput);
+                _parseTouchLog(*slice, parsedOutput);
 
             // add a slice every 90 seconds
-            if (slice.duration > (90 * 1000) && slice.next) {
-                _slices.emplace_back(Slice());
+            if (slice->duration > (90 * 1000) && slice->next) {
+                _slices.push_back(new Slice());
 
-                slice.next = false;
+                slice->next = false;
             }
         }
     }
@@ -305,10 +321,6 @@ void DataParser::parseDataSlices() {
 
     _averageKeystrokeData();
     _averageTouchData();
-
-    std::vector<std::array<double, 10>> dataVectors;
-
-
 }
 
 std::vector<DataParser::dataVector> DataParser::getDataVectors() {
@@ -318,55 +330,58 @@ std::vector<DataParser::dataVector> DataParser::getDataVectors() {
         dataVector dataVector;
 
         // Orientation Histogram
-        for (auto &state: slice.states) {
+        for (auto &state: slice->states) {
             dataVector.push_back(state.count);
         }
 
         // Orientation Time Histogram
-        for (auto &state: slice.states) {
+        for (auto &state: slice->states) {
             dataVector.push_back(state.timeSpent);
         }
 
         // Keystroke duration
-        for (auto &key: slice.keys) {
-            dataVector.push_back(key.second.duration);
+        for (auto &key: slice->keys) {
+            dataVector.push_back(key.second->duration);
         }
 
         // Keystroke latency
-        dataVector.push_back(slice.keyLatency);
+        dataVector.push_back(slice->keyLatency);
 
         // Distribution of Actions on the Screen
-        for (auto &screenPortionCount: slice.distrubtionsOfTouchs) {
+        for (auto &screenPortionCount: slice->distrubtionsOfTouchs) {
             dataVector.push_back(screenPortionCount);
         }
 
         // Movement Direction Histogram
-        for (auto &movementDirection: slice.movementDirectionsHistogram) {
+        for (auto &movementDirection: slice->movementDirectionsHistogram) {
             dataVector.push_back(movementDirection);
         }
 
         // Average Speed per Movement Direction
-        for (auto &averageSpeedPerMovementDirection: slice.averageSpeedPerMovementDirectionHistogram) {
+        for (auto &averageSpeedPerMovementDirection: slice->averageSpeedPerMovementDirectionHistogram) {
+//            if (averageSpeedPerMovementDirection < 0)
+//                std::cout << averageSpeedPerMovementDirection << std::endl;
+
             dataVector.push_back(averageSpeedPerMovementDirection);
         }
 
         // Travel Distance Histogram
-        for (auto &travelDistance: slice.travelDistanceHistogram) {
+        for (auto &travelDistance: slice->travelDistanceHistogram) {
             dataVector.push_back(travelDistance);
         }
 
         // Extreme Movement Speed Relative to Travel Distance
-        for (auto &extremeMovementRelativeToTravelDistance: slice.extremeSpeedsRelativeToTravelDistanceHistogram) {
+        for (auto &extremeMovementRelativeToTravelDistance: slice->extremeSpeedsRelativeToTravelDistanceHistogram) {
             dataVector.push_back(extremeMovementRelativeToTravelDistance);
         }
 
         // Movement Elapsed Time Histogram
-        for (auto &movementElapsedTime: slice.movementElapsedTimeHistogram) {
+        for (auto &movementElapsedTime: slice->movementElapsedTimeHistogram) {
             dataVector.push_back(movementElapsedTime);
         }
 
         // Average Movement Speed Relative to Travel Distance
-        for (auto &averageSpeedRelativeToTravelDistance: slice.averageSpeedRelativeToTravelDistanceHistogram) {
+        for (auto &averageSpeedRelativeToTravelDistance: slice->averageSpeedRelativeToTravelDistanceHistogram) {
             dataVector.push_back(averageSpeedRelativeToTravelDistance);
         }
 

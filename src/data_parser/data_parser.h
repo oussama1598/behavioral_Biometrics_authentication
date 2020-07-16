@@ -46,7 +46,7 @@ private:
                 };
 
         // keys data
-        std::map<int, Key> keys{};
+        std::map<int, Key*> keys;
         long keyLatency{INT32_MAX};
         long lastKeyTimestamp{-1};
 
@@ -67,13 +67,13 @@ private:
 
         inline Slice() {
             for (int i = 0; i < 26; ++i) {
-                keys.insert({65 + i, {}});
-                keys.insert({97 + i, {}});
+                keys.insert({65 + i, new Key()});
+                keys.insert({97 + i, new Key()});
             }
         }
     };
 
-    std::vector<Slice> _slices;
+    std::vector<Slice *> _slices;
 
     int _lastStateId{-1};
 

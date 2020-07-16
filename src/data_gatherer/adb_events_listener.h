@@ -33,12 +33,16 @@ private:
 
     std::map<std::string, std::function<void(std::string &, std::string &)>> _eventsList
             {
-                    {"event6", [=](std::string &eventName, std::string &eventValue) {
+                    {"event0", [=](std::string &eventName, std::string &eventValue) {
                         this->_extractTouchEvents(eventName, eventValue);
                         this->_extractButtonsEvents(eventName, eventValue);
                     }},
                     {
                      "event1", [=](std::string &eventName, std::string &eventValue) {
+                        this->_extractButtonsEvents(eventName, eventValue);
+                    }},
+                    {
+                     "event6", [=](std::string &eventName, std::string &eventValue) {
                         this->_extractButtonsEvents(eventName, eventValue);
                     }}
             };
