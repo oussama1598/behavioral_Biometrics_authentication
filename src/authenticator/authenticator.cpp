@@ -1,7 +1,10 @@
 #include "authenticator.h"
 
-Authenticator::Authenticator(DataParser &currentUserDataParser,
-                             DataParser &unknownUserDataParser) {
+Authenticator::Authenticator(int currentUserNumberOfSlices, int unknownNumberOfSlices,
+                             DataParser &currentUserDataParser,
+                             DataParser &unknownUserDataParser) :
+        _currentUserNumberOfSlices(currentUserNumberOfSlices),
+        _unknownNumberOfSlices(unknownNumberOfSlices) {
     _currentUserDataVectors = currentUserDataParser.getDataVectors();
     _unknownUserDataVectors = unknownUserDataParser.getDataVectors();
 
@@ -16,17 +19,17 @@ void Authenticator::_createSVMModel() {
     _svm->setKernel(cv::ml::SVM::RBF);
     _svm->setDegree(3);
     _svm->setC(1);
-    _svm->setTermCriteria(cv::TermCriteria(cv::TermCriteria::MAX_ITER, 100, 1e-6));
+    _svm->setTermCriteria(cv::TermCriteria(cv::TermCriteria::MAX_ITER, 1000, 1e-10));
 }
 
 void Authenticator::_createTrainingData() {
     _trainingMatrix = cv::Mat(
-            15 + 15,
+            _currentUserNumberOfSlices + _unknownNumberOfSlices,
             (int) _currentUserDataVectors[0].size(),
             CV_32F
     );
 
-    for (size_t i = 0; i < 15; ++i) {
+    for (size_t i = 0; i < (size_t) _currentUserNumberOfSlices; ++i) {
         for (size_t j = 0; j < _currentUserDataVectors[i].size(); ++j) {
             _trainingMatrix.at<float>(i, j) = _currentUserDataVectors[i][j];
         }
@@ -34,8 +37,8 @@ void Authenticator::_createTrainingData() {
         _dataLabels.push_back(1);
     }
 
-    for (size_t i = 0; i < 15; ++i) {
-        int offsetI = 15 + i;
+    for (size_t i = 0; i < (size_t) _unknownNumberOfSlices; ++i) {
+        int offsetI = _currentUserNumberOfSlices + i;
 
         for (size_t j = 0; j < _unknownUserDataVectors[i].size(); ++j) {
             _trainingMatrix.at<float>(offsetI, j) = _unknownUserDataVectors[i][j];
@@ -49,7 +52,7 @@ void Authenticator::_createTrainingData() {
 
 
 void Authenticator::train() {
-    _svm->train(_trainingMatrix, cv::ml::ROW_SAMPLE, _dataLabels);
+    _svm->trainAuto(_trainingMatrix, cv::ml::ROW_SAMPLE, _dataLabels, 5);
 }
 
 float Authenticator::authenticate(const std::vector<double> &sample) {

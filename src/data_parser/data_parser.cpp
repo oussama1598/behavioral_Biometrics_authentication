@@ -67,7 +67,7 @@ DataParser::_parseKeyboardLog(DataParser::Slice &slice, std::vector<std::string>
 
 void
 DataParser::_parseOrientationLog(DataParser::Slice &slice,
-                                 std::vector<std::string> &parsedOutput) const {
+                                 std::vector<std::string> &parsedOutput) {
     long timestamp = StringsHelpers::stringToLongInt(parsedOutput.at(1));
     int stateId = StringsHelpers::stringToInt(parsedOutput.at(2));
 
@@ -84,6 +84,8 @@ DataParser::_parseOrientationLog(DataParser::Slice &slice,
     if (_lastStateId != -1 && _lastStateId != stateId) {
         slice.states.at(stateId).count += 1;
     }
+
+    _lastStateId = stateId;
 }
 
 void

@@ -1,7 +1,7 @@
 #include "data_parser.h"
 
 int main() {
-    DataParser dataParser;
+    DataParser dataParser("user_2");
 
     dataParser.combineLogs(
             "data/user_2_orientation_events.txt",

@@ -6,6 +6,8 @@
 
 class Authenticator {
 private:
+    int _currentUserNumberOfSlices, _unknownNumberOfSlices;
+
     std::vector<std::vector<double>> _currentUserDataVectors;
     std::vector<std::vector<double>> _unknownUserDataVectors;
 
@@ -18,7 +20,8 @@ private:
     void _createSVMModel();
 
 public:
-    Authenticator(DataParser &currentUserDataParser, DataParser &unknownUserDataParser);
+    Authenticator(int currentUserNumberOfSlices, int unknownNumberOfSlices,
+                  DataParser &currentUserDataParser, DataParser &unknownUserDataParser);
 
     void train();
 

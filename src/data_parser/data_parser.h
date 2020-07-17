@@ -93,7 +93,7 @@ private:
 
     void _parseKeyboardLog(Slice &slice, std::vector<std::string> &parsedOutput);
 
-    void _parseOrientationLog(Slice &slice, std::vector<std::string> &parsedOutput) const;
+    void _parseOrientationLog(Slice &slice, std::vector<std::string> &parsedOutput);
 
     void
     _addTouchData(DataParser::Slice &slice, const Touch &firstTouch, const Touch &lastTouch);
