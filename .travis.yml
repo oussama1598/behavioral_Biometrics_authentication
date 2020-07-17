@@ -14,7 +14,7 @@ matrix:
       env:
         - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9"
 before_install:
-  - apt-get install python-dev
+  - sudo apt-get install python-dev
   - export CC
   - export CXX
   - eval "${MATRIX_EVAL}"
