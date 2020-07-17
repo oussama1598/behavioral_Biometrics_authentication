@@ -1,24 +1,7 @@
 #include "authenticator.h"
 
-Authenticator::Authenticator(const std::string &currentUserOrientationFilename,
-                             const std::string &currentUserKeyboardFilename,
-                             const std::string &currentUserTouchFilename,
-
-                             const std::string &unknownUserOrientationFilename,
-                             const std::string &unknownUserKeyboardFilename,
-                             const std::string &unknownUserTouchFilename) {
-    DataParser currentUserDataParser;
-    DataParser unknownUserDataParser;
-
-    currentUserDataParser.combineLogs(currentUserOrientationFilename, currentUserKeyboardFilename,
-                                      currentUserTouchFilename);
-    unknownUserDataParser.combineLogs(unknownUserOrientationFilename, unknownUserKeyboardFilename,
-                                      unknownUserTouchFilename);
-
-    currentUserDataParser.parseDataSlices();
-    unknownUserDataParser.parseDataSlices();
-
-
+Authenticator::Authenticator(DataParser &currentUserDataParser,
+                             DataParser &unknownUserDataParser) {
     _currentUserDataVectors = currentUserDataParser.getDataVectors();
     _unknownUserDataVectors = unknownUserDataParser.getDataVectors();
 
@@ -30,18 +13,20 @@ void Authenticator::_createSVMModel() {
     _svm = cv::ml::SVM::create();
 
     _svm->setType(cv::ml::SVM::C_SVC);
-    _svm->setKernel(cv::ml::SVM::LINEAR);
+    _svm->setKernel(cv::ml::SVM::RBF);
+    _svm->setDegree(3);
+    _svm->setC(1);
     _svm->setTermCriteria(cv::TermCriteria(cv::TermCriteria::MAX_ITER, 100, 1e-6));
 }
 
 void Authenticator::_createTrainingData() {
     _trainingMatrix = cv::Mat(
-            (int) (_currentUserDataVectors.size() + _unknownUserDataVectors.size()),
+            15 + 15,
             (int) _currentUserDataVectors[0].size(),
             CV_32F
     );
 
-    for (size_t i = 0; i < _currentUserDataVectors.size(); ++i) {
+    for (size_t i = 0; i < 15; ++i) {
         for (size_t j = 0; j < _currentUserDataVectors[i].size(); ++j) {
             _trainingMatrix.at<float>(i, j) = _currentUserDataVectors[i][j];
         }
@@ -49,8 +34,8 @@ void Authenticator::_createTrainingData() {
         _dataLabels.push_back(1);
     }
 
-    for (size_t i = 0; i < _unknownUserDataVectors.size(); ++i) {
-        int offsetI = _currentUserDataVectors.size() + i;
+    for (size_t i = 0; i < 15; ++i) {
+        int offsetI = 15 + i;
 
         for (size_t j = 0; j < _unknownUserDataVectors[i].size(); ++j) {
             _trainingMatrix.at<float>(offsetI, j) = _unknownUserDataVectors[i][j];
@@ -73,7 +58,7 @@ float Authenticator::authenticate(const std::vector<double> &sample) {
     );
 
     for (size_t j = 0; j < sample.size(); ++j) {
-        sampleMatrix.at<float>(0, j) = sample[j];
+        sampleMatrix.at<float>(0, j) = sample.at(j);
     }
 
     return _svm->predict(sampleMatrix);

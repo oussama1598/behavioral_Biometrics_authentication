@@ -46,7 +46,7 @@ private:
                 };
 
         // keys data
-        std::map<int, Key*> keys;
+        std::map<int, Key *> keys;
         long keyLatency{INT32_MAX};
         long lastKeyTimestamp{-1};
 
@@ -72,6 +72,8 @@ private:
             }
         }
     };
+
+    std::string _name;
 
     std::vector<Slice *> _slices;
 
@@ -103,6 +105,7 @@ private:
     void _averageTouchData();
 
 public:
+    explicit DataParser(const std::string &name);
 
     void combineLogs(const std::string &orientationFilename, const std::string &keyboardFilename,
                      const std::string &touchFilename);

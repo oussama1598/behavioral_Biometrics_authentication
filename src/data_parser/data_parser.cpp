@@ -1,5 +1,7 @@
 #include "data_parser.h"
 
+DataParser::DataParser(const std::string &name) : _name(name) {}
+
 void DataParser::_loadLogs(std::map<long, std::string> &logValues, const std::string &filename,
                            const std::string &logName) {
     std::fstream logs;
@@ -253,9 +255,9 @@ void DataParser::_averageTouchData() {
 void DataParser::combineLogs(const std::string &orientationFilename,
                              const std::string &keyboardFilename,
                              const std::string &touchFilename) {
-    FileLogger combinedlogs{"data/combined.txt"};
-    std::map<long, std::string> logValues;
+    FileLogger combinedlogs{"data/" + _name + "_combined.txt"};
 
+    std::map<long, std::string> logValues;
 
     _loadLogs(logValues, orientationFilename, "ORIENTATION");
     _loadLogs(logValues, keyboardFilename, "KEYBOARD");
@@ -270,7 +272,7 @@ void DataParser::parseDataSlices() {
     std::fstream fileStream;
     std::string lineBuffer;
 
-    fileStream.open("data/combined.txt");
+    fileStream.open("data/" + _name + "_combined.txt");
 
     if (!fileStream.is_open())
         throw std::runtime_error("File Not Opened");

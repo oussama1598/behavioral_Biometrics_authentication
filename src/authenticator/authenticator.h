@@ -18,13 +18,7 @@ private:
     void _createSVMModel();
 
 public:
-    Authenticator(const std::string &currentUserOrientationFilename,
-                  const std::string &currentUserKeyboardFilename,
-                  const std::string &currentUserTouchFilename,
-
-                  const std::string &unknownUserOrientationFilename,
-                  const std::string &unknownUserKeyboardFilename,
-                  const std::string &unknownUserTouchFilename);
+    Authenticator(DataParser &currentUserDataParser, DataParser &unknownUserDataParser);
 
     void train();
 
