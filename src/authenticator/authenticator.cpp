@@ -52,7 +52,7 @@ void Authenticator::_createTrainingData() {
 
 
 void Authenticator::train() {
-    _svm->trainAuto(_trainingMatrix, cv::ml::ROW_SAMPLE, _dataLabels, 5);
+    _svm->train(_trainingMatrix, cv::ml::ROW_SAMPLE, _dataLabels);
 }
 
 float Authenticator::authenticate(const std::vector<double> &sample) {

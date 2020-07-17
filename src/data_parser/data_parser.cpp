@@ -85,6 +85,10 @@ DataParser::_parseOrientationLog(DataParser::Slice &slice,
         slice.states.at(stateId).count += 1;
     }
 
+    if (_lastStateId == -1) {
+        slice.states.at(stateId).count += 1;
+    }
+
     _lastStateId = stateId;
 }
 
@@ -287,6 +291,8 @@ void DataParser::parseDataSlices() {
         std::string logName = parsedOutput.at(0);
         long timestamp = StringsHelpers::stringToLongInt(parsedOutput.at(1));
 
+        if (timestamp == 0) continue;
+
         size_t size = _slices.size();
 
         for (size_t i = 0; i < size; ++i) {
@@ -366,9 +372,6 @@ std::vector<DataParser::dataVector> DataParser::getDataVectors() {
 
         // Average Speed per Movement Direction
         for (auto &averageSpeedPerMovementDirection: slice->averageSpeedPerMovementDirectionHistogram) {
-//            if (averageSpeedPerMovementDirection < 0)
-//                std::cout << averageSpeedPerMovementDirection << std::endl;
-
             dataVector.push_back(averageSpeedPerMovementDirection);
         }
 

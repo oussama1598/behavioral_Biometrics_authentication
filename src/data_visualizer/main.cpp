@@ -4,7 +4,7 @@
 namespace plt = matplotlibcpp;
 
 int main() {
-    DataParser user1DataParser{"user1"};
+    DataParser user1DataParser{"user2"};
 
     user1DataParser.combineLogs(
             "data/user_2_orientation_events.txt",
@@ -16,8 +16,8 @@ int main() {
 
     DataVisualizer dataVisualizer{user1DataParser};
 
-    dataVisualizer.visualizeOrientationHistogram(1);
-    dataVisualizer.visualizeOrientationTimeHistogram(1);
+    dataVisualizer.visualizeOrientationHistogram(0);
+    dataVisualizer.visualizeOrientationTimeHistogram(0);
 
     return 0;
 }
