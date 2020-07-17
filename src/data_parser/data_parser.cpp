@@ -105,7 +105,7 @@ DataParser::_addTouchData(DataParser::Slice &slice, const DataParser::Touch &fir
 
     slice.movementDirectionsHistogram.at(directionId) += 1;
     slice.averageSpeedPerMovementDirectionHistogram.at(directionId) += speed;
-    
+
     // for Travel Distance Histogram
     int distanceId = (int) (traveledDistance / 200);
 
@@ -153,6 +153,9 @@ void DataParser::_parseTouchLog(DataParser::Slice &slice, std::vector<std::strin
     int xIndex = (int) ((float) x / screenPortionWidth);
     int yIndex = (int) ((float) y / screenPortionHeight);
 
+    xIndex = std::clamp(xIndex, 0, 2);
+    yIndex = std::clamp(yIndex, 0, 2);
+
     int portionIndex = (yIndex * 3) + xIndex;
 
     // for Distribution of Actions on the Screen
@@ -193,7 +196,7 @@ void DataParser::_parseTouchLog(DataParser::Slice &slice, std::vector<std::strin
     }
 
     if (Utils::getDistance(firstTouch.x, firstTouch.y, x, y) >= 500) {
-//        _addTouchData(slice, firstTouch, {timestamp, x, y});
+        _addTouchData(slice, firstTouch, {timestamp, x, y});
 
         _firstTouches.erase(fingerId);
         _lastTouches.erase(fingerId);

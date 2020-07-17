@@ -4,9 +4,9 @@ int main() {
     DataParser dataParser;
 
     dataParser.combineLogs(
-            "data/user_1_orientation_events.txt",
-            "data/user_1_keyboard_events.txt",
-            "data/user_1_touch_events.txt"
+            "data/user_2_orientation_events.txt",
+            "data/user_2_keyboard_events.txt",
+            "data/user_2_touch_events.txt"
     );
 
     dataParser.parseDataSlices();
