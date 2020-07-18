@@ -16,8 +16,16 @@ int main() {
 
     DataVisualizer dataVisualizer{user1DataParser};
 
-    dataVisualizer.visualizeOrientationHistogram(0);
-    dataVisualizer.visualizeOrientationTimeHistogram(0);
+    dataVisualizer.visualizeOrientationHistogram();
+    dataVisualizer.visualizeOrientationTimeHistogram();
+    dataVisualizer.visualizeDistributionOfActionsOnTheScreenHistogram();
+    dataVisualizer.visualizeDistributionOfActionsOnTheScreenHistogram();
+    dataVisualizer.visualizeMovementDirectionHistogram();
+    dataVisualizer.visualizeAverageSpeedPerMovementDirectionHistogram();
+    dataVisualizer.visualizeTravelDistanceHistogram();
+    dataVisualizer.visualizeExtremeMovementSpeedRelativeToTravelDistanceHistogram();
+    dataVisualizer.visualizeMovementElapsedTimeHistogram();
+    dataVisualizer.visualizeAverageMovementSpeedRelativetoTravelDistanceHistogram();
 
     return 0;
 }

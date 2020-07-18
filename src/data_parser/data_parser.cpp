@@ -124,19 +124,12 @@ DataParser::_addTouchData(DataParser::Slice &slice, const DataParser::Touch &fir
     slice.extremeSpeedsRelativeToTravelDistanceHistogram.at(distanceId) = std::max(
             slice.extremeSpeedsRelativeToTravelDistanceHistogram.at(distanceId), speed);
 
-    if (_lastTouchMovementTimestamp == -1) {
-        _lastTouchMovementTimestamp = lastTouch.timestamp;
-    } else {
-        // for Movement Elapsed Time Histogram
-        long deltaTimeMovement = firstTouch.timestamp - _lastTouchMovementTimestamp;
-        int timeId = (int) (deltaTimeMovement / 500);
+    // for Movement Elapsed Time Histogram
+    int timeId = (int) (deltaTime / 500);
 
-        timeId = std::clamp(timeId, 0, 8);
+    timeId = std::clamp(timeId, 0, 8);
 
-        slice.movementElapsedTimeHistogram.at(timeId) += 1;
-
-        _lastTouchMovementTimestamp = lastTouch.timestamp;
-    }
+    slice.movementElapsedTimeHistogram.at(timeId) += 1;
 }
 
 void DataParser::_parseTouchLog(DataParser::Slice &slice, std::vector<std::string> &parsedOutput) {
@@ -243,10 +236,9 @@ void DataParser::_averageTouchData() {
     for (auto &slice: _slices) {
         for (int i = 0; i < 9; ++i) {
             // average speed per movement direction
-            if (i < 8) {
-                if (slice->movementDirectionsHistogram.at(i) != 0)
-                    slice->averageSpeedPerMovementDirectionHistogram.at(
-                            i) /= slice->movementDirectionsHistogram.at(i);
+            if (i < 8 && slice->movementDirectionsHistogram.at(i) != 0) {
+                slice->averageSpeedPerMovementDirectionHistogram.at(
+                        i) /= slice->movementDirectionsHistogram.at(i);
             }
 
             // average speed relative to travel distance

@@ -19,5 +19,19 @@ public:
     void visualizeOrientationHistogram(int vectorIndex = 0);
 
     void visualizeOrientationTimeHistogram(int vectorIndex = 0);
+
+    void visualizeDistributionOfActionsOnTheScreenHistogram(int vectorIndex = 0);
+
+    void visualizeMovementDirectionHistogram(int vectorIndex = 0);
+
+    void visualizeAverageSpeedPerMovementDirectionHistogram(int vectorIndex = 0);
+
+    void visualizeTravelDistanceHistogram(int vectorIndex = 0);
+
+    void visualizeExtremeMovementSpeedRelativeToTravelDistanceHistogram(int vectorIndex = 0);
+
+    void visualizeMovementElapsedTimeHistogram(int vectorIndex = 0);
+
+    void visualizeAverageMovementSpeedRelativetoTravelDistanceHistogram(int vectorIndex = 0);
 };
 

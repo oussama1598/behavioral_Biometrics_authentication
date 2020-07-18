@@ -51,19 +51,19 @@ private:
         long lastKeyTimestamp{-1};
 
 
-        std::array<int, 9> distrubtionsOfTouchs{};
+        std::array<double, 9> distrubtionsOfTouchs{};
 
-        std::array<int, 8> movementDirectionsHistogram{};
+        std::array<double, 8> movementDirectionsHistogram{};
 
-        std::array<int, 8> averageSpeedPerMovementDirectionHistogram{};
+        std::array<double, 8> averageSpeedPerMovementDirectionHistogram{};
 
-        std::array<int, 9> travelDistanceHistogram{};
+        std::array<double, 9> travelDistanceHistogram{};
 
         std::array<double, 9> extremeSpeedsRelativeToTravelDistanceHistogram{};
 
-        std::array<double, 9> averageSpeedRelativeToTravelDistanceHistogram{};
-
         std::array<double, 9> movementElapsedTimeHistogram{};
+
+        std::array<double, 9> averageSpeedRelativeToTravelDistanceHistogram{};
 
         inline Slice() {
             for (int i = 0; i < 26; ++i) {
@@ -84,8 +84,6 @@ private:
 
     std::map<int, Touch> _firstTouches;
     std::map<int, Touch> _lastTouches;
-
-    long _lastTouchMovementTimestamp{-1};
 
 private:
     void _loadLogs(std::map<long, std::string> &logValues, const std::string &filename,
