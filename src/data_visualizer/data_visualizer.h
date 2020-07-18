@@ -20,6 +20,8 @@ public:
 
     void visualizeOrientationTimeHistogram(int vectorIndex = 0);
 
+    void visualizeKeystrokeDurationHistogram(int vectorIndex = 0);
+
     void visualizeDistributionOfActionsOnTheScreenHistogram(int vectorIndex = 0);
 
     void visualizeMovementDirectionHistogram(int vectorIndex = 0);

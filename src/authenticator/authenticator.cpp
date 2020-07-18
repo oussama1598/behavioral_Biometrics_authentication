@@ -19,7 +19,7 @@ void Authenticator::_createSVMModel() {
     _svm->setKernel(cv::ml::SVM::RBF);
     _svm->setDegree(3);
     _svm->setC(1);
-    _svm->setTermCriteria(cv::TermCriteria(cv::TermCriteria::MAX_ITER, 1000, 1e-10));
+    _svm->setTermCriteria(cv::TermCriteria(cv::TermCriteria::MAX_ITER, 100, 1e-6));
 }
 
 void Authenticator::_createTrainingData() {

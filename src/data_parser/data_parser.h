@@ -14,7 +14,7 @@ private:
 
     struct Key {
         int count{0};
-        long duration{INT32_MAX};
+        long duration{-1};
         long pressedTimestamp{0};
     };
 
@@ -47,7 +47,7 @@ private:
 
         // keys data
         std::map<int, Key *> keys;
-        long keyLatency{INT32_MAX};
+        long keyLatency{-1};
         long lastKeyTimestamp{-1};
 
 
