@@ -267,7 +267,7 @@ namespace matplotlibcpp {
 /// Mainly useful to select the non-interactive 'Agg' backend when running
 /// matplotlibcpp in headless mode, for example on a machine with no display.
 ///
-/// See also: https://matplotlib.org/2.0.2/api/matplotlib_configuration_api.html#matplotlib.use
+/// See also: https://matplotlib.org/2.0.2/api_server/matplotlib_configuration_api.html#matplotlib.use
     inline void backend(const std::string &name) {
         detail::s_backend = name;
     }
@@ -443,7 +443,7 @@ PyObject* get_array(const std::vector<Numeric>& v)
 
 /// Plot a line through the given x and y data points..
 ///
-/// See: https://matplotlib.org/3.2.1/api/_as_gen/matplotlib.pyplot.plot.html
+/// See: https://matplotlib.org/3.2.1/api_server/_as_gen/matplotlib.pyplot.plot.html
     template<typename Numeric>
     bool plot(const std::vector<Numeric> &x, const std::vector<Numeric> &y,
               const std::map<std::string, std::string> &keywords) {

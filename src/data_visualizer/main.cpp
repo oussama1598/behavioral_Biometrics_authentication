@@ -16,17 +16,17 @@ int main() {
 
     DataVisualizer dataVisualizer{user1DataParser};
 
-//    dataVisualizer.visualizeOrientationHistogram();
-//    dataVisualizer.visualizeOrientationTimeHistogram();
+    dataVisualizer.visualizeOrientationHistogram();
+    dataVisualizer.visualizeOrientationTimeHistogram();
     dataVisualizer.visualizeKeystrokeDurationHistogram();
-//    dataVisualizer.visualizeDistributionOfActionsOnTheScreenHistogram();
-//    dataVisualizer.visualizeDistributionOfActionsOnTheScreenHistogram();
-//    dataVisualizer.visualizeMovementDirectionHistogram();
-//    dataVisualizer.visualizeAverageSpeedPerMovementDirectionHistogram();
-//    dataVisualizer.visualizeTravelDistanceHistogram();
-//    dataVisualizer.visualizeExtremeMovementSpeedRelativeToTravelDistanceHistogram();
-//    dataVisualizer.visualizeMovementElapsedTimeHistogram();
-//    dataVisualizer.visualizeAverageMovementSpeedRelativetoTravelDistanceHistogram();
+    dataVisualizer.visualizeDistributionOfActionsOnTheScreenHistogram();
+    dataVisualizer.visualizeDistributionOfActionsOnTheScreenHistogram();
+    dataVisualizer.visualizeMovementDirectionHistogram();
+    dataVisualizer.visualizeAverageSpeedPerMovementDirectionHistogram();
+    dataVisualizer.visualizeTravelDistanceHistogram();
+    dataVisualizer.visualizeExtremeMovementSpeedRelativeToTravelDistanceHistogram();
+    dataVisualizer.visualizeMovementElapsedTimeHistogram();
+    dataVisualizer.visualizeAverageMovementSpeedRelativetoTravelDistanceHistogram();
 
     return 0;
 }
