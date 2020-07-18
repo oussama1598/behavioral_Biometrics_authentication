@@ -5,6 +5,10 @@ APIServer::APIServer() {
     _server.Get("/", MainRoute::getRoute);
     _server.Get("/authenticate", AuthenticateRoute::getRoute);
 
+    _server.set_logger([](const httplib::Request &req, const httplib::Response &) {
+        std::cout << req.path << " " << req.method << std::endl;
+    });
+
     _server.set_error_handler([](const auto &, auto &res) {
         auto fmt = "<p>Error Status: <span style='color:red;'>%d</span></p>";
         char buf[BUFSIZ];
