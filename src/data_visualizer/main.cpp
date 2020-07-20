@@ -16,17 +16,18 @@ int main() {
 
     DataVisualizer dataVisualizer{user1DataParser};
 
-    dataVisualizer.visualizeOrientationHistogram();
-    dataVisualizer.visualizeOrientationTimeHistogram();
-    dataVisualizer.visualizeKeystrokeDurationHistogram();
-    dataVisualizer.visualizeDistributionOfActionsOnTheScreenHistogram();
-    dataVisualizer.visualizeDistributionOfActionsOnTheScreenHistogram();
-    dataVisualizer.visualizeMovementDirectionHistogram();
-    dataVisualizer.visualizeAverageSpeedPerMovementDirectionHistogram();
-    dataVisualizer.visualizeTravelDistanceHistogram();
-    dataVisualizer.visualizeExtremeMovementSpeedRelativeToTravelDistanceHistogram();
-    dataVisualizer.visualizeMovementElapsedTimeHistogram();
-    dataVisualizer.visualizeAverageMovementSpeedRelativetoTravelDistanceHistogram();
+    int vectorIndex = 12;
+
+    dataVisualizer.visualizeOrientationHistogram(vectorIndex);
+    dataVisualizer.visualizeOrientationTimeHistogram(vectorIndex);
+    dataVisualizer.visualizeKeystrokeDurationHistogram(vectorIndex);
+    dataVisualizer.visualizeDistributionOfActionsOnTheScreenHistogram(vectorIndex);
+    dataVisualizer.visualizeMovementDirectionHistogram(vectorIndex);
+    dataVisualizer.visualizeAverageSpeedPerMovementDirectionHistogram(vectorIndex);
+    dataVisualizer.visualizeTravelDistanceHistogram(vectorIndex);
+    dataVisualizer.visualizeExtremeMovementSpeedRelativeToTravelDistanceHistogram(vectorIndex);
+    dataVisualizer.visualizeMovementElapsedTimeHistogram(vectorIndex);
+    dataVisualizer.visualizeAverageMovementSpeedRelativetoTravelDistanceHistogram(vectorIndex);
 
     return 0;
 }

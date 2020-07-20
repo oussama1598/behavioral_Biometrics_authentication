@@ -19,9 +19,9 @@ int main() {
     user1DataParser.parseDataSlices();
     user2DataParser.parseDataSlices();
 
-    Authenticator authenticator{10, 15, user1DataParser, user2DataParser};
+    Authenticator authenticator{15, 15, user2DataParser, user1DataParser};
 
     authenticator.train();
 
-    std::cout << authenticator.authenticate(user1DataParser.getDataVectors()[12]) << std::endl;
+    std::cout << authenticator.authenticate(user2DataParser.getDataVectors()[12]) << std::endl;
 }
