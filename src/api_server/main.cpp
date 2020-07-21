@@ -3,5 +3,5 @@
 int main() {
     APIServer apiServer;
 
-    apiServer.listen();
+    apiServer.listen("0.0.0.0", std::stoi(std::getenv("PORT")));
 }
