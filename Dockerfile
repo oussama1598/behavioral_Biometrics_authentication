@@ -29,4 +29,5 @@ RUN mkdir cmake-build-release
 WORKDIR cmake-build-release
 RUN /root/usr/bin/cmake -DCMAKE_BUILD_TYPE=Release ..
 RUN make -j2
+RUN cp -r ../data/ .
 CMD ./bin/api_server_bin

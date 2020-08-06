@@ -40,24 +40,33 @@ float AuthenticateRoute::_authenticate(const std::string &user_id,
     return authenticator.authenticate(sample);
 }
 
-void AuthenticateRoute::getRoute(const httplib::Request &req, httplib::Response &res) {
-    json response = {};
+void AuthenticateRoute::postRoute(const httplib::Request &req, httplib::Response &res) {
+    json body{};
+    json response{};
 
-    if (!req.has_param("user_id") or req.get_param_value("user_id").empty()) {
+    try {
+        body = json::parse(req.body);
+    } catch (const std::exception &) {
+        _sendErrorReponse(res, "NOT_VALID_BODY");
+
+        return;
+    }
+
+    if (!body.contains("user_id") or body["user_id"].empty()) {
         _sendErrorReponse(res, "USER_ID_IS_EMPTY");
 
         return;
     }
 
 
-    if (!req.has_param("slice_data") or req.get_param_value("slice_data").empty()) {
+    if (!body.contains("slice_data") or body["slice_data"].empty()) {
         _sendErrorReponse(res, "SLICE_DATA_IS_EMPTY");
 
         return;
     }
 
-    std::string user_id = req.get_param_value("user_id");
-    std::string slice_data = req.get_param_value("slice_data");
+    std::string user_id = body["user_id"];
+    std::string slice_data = body["slice_data"];
 
     if (std::find(_users.begin(), _users.end(), user_id) == _users.end()) {
         _sendErrorReponse(res, "USER_ID_DOES_NOT_EXIST");
@@ -66,6 +75,8 @@ void AuthenticateRoute::getRoute(const httplib::Request &req, httplib::Response 
     }
 
     std::vector<std::string> data = StringsHelpers::split(slice_data, ',');
+
+    std::cout << data.size() << std::endl;
 
     if (data.size() != 122) {
         _sendErrorReponse(res, "NOT_VALID_SLICE_OF_DATA");

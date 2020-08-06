@@ -3,7 +3,8 @@
 APIServer::APIServer() {
     // setup routes
     _server.Get("/", MainRoute::getRoute);
-    _server.Get("/authenticate", AuthenticateRoute::getRoute);
+    _server.Post("/authenticate", AuthenticateRoute::postRoute);
+    _server.Post("/users_data", UsersDataRoute::postRoute);
 
     _server.set_logger([](const httplib::Request &req, const httplib::Response &) {
         std::cout << req.path << " " << req.method << std::endl;

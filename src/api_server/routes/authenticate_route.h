@@ -20,6 +20,6 @@ public:
     static float
     _authenticate(const std::string &user_id, const std::vector<double> &sample);
 
-    static void getRoute(const httplib::Request &req, httplib::Response &res);
+    static void postRoute(const httplib::Request &req, httplib::Response &res);
 };
 

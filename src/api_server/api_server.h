@@ -3,6 +3,7 @@
 #include "lib/httplib.h"
 #include "routes/main_route.h"
 #include "routes/authenticate_route.h"
+#include "routes/users_data_route.h"
 
 class APIServer {
 private:

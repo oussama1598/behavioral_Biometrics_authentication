@@ -16,7 +16,7 @@ int main() {
 
     DataVisualizer dataVisualizer{user1DataParser};
 
-    int vectorIndex = 12;
+    int vectorIndex = 0;
 
     dataVisualizer.visualizeOrientationHistogram(vectorIndex);
     dataVisualizer.visualizeOrientationTimeHistogram(vectorIndex);

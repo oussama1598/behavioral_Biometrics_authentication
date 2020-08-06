@@ -28,9 +28,8 @@ void DataVisualizer::visualizeOrientationTimeHistogram(int vectorIndex) {
 }
 
 void DataVisualizer::visualizeKeystrokeDurationHistogram(int vectorIndex) {
-    _visualize("Keystrokes Duration Histogram", vectorIndex, 8, 52);
+    _visualize("Keystrokes Duration Histogram", vectorIndex, 8 , 52);
 }
-
 
 void DataVisualizer::visualizeDistributionOfActionsOnTheScreenHistogram(int vectorIndex) {
     _visualize("Distribution of Actions on the Screen Histogram", vectorIndex, 61, 9);
@@ -56,7 +55,6 @@ DataVisualizer::visualizeExtremeMovementSpeedRelativeToTravelDistanceHistogram(i
 void DataVisualizer::visualizeMovementElapsedTimeHistogram(int vectorIndex) {
     _visualize("Movement Elapsed Time Histogram", vectorIndex, 104, 9);
 }
-
 
 void
 DataVisualizer::visualizeAverageMovementSpeedRelativetoTravelDistanceHistogram(int vectorIndex) {

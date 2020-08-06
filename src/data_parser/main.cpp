@@ -13,7 +13,7 @@ int main() {
 
     std::vector<std::vector<double>> data = dataParser.getDataVectors();
 
-    std::cout << data.size() << std::endl;
+    std::cout << data[0].size() << std::endl;
 
     return 0;
 }
